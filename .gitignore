@@ -1,0 +1,9 @@
+# Env
+.env
+.vscode
+
+# Compiled python
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints
