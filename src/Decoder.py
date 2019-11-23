@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from src.blocks import MultiHeadAttention, PositionwiseFeedForwad
+from src.utils import generate_positional_encoding
 
 class Decoder(nn.Module):
     """Decoder block from Attention is All You Need.
@@ -25,8 +26,10 @@ class Decoder(nn.Module):
         Second normalization layer from the paper `Layer Normalization`.
     layerNorm3: LayerNorm
         Third normalization layer from the paper `Layer Normalization`.
+    PE: Tensor
+        Position encoding.
     """
-    def __init__(self, d_model, q, v, h):
+    def __init__(self, d_model, q, v, h, k):
         """Initialize the Decoder block
 
         Parameters
@@ -39,6 +42,8 @@ class Decoder(nn.Module):
             Dimension of all value matrix.
         h: int
             Number of heads.
+        k: int
+            Time window length.
         """
         super().__init__()
         
@@ -49,6 +54,8 @@ class Decoder(nn.Module):
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
         self._layerNorm3 = nn.LayerNorm(d_model)
+
+        self._PE = generate_positional_encoding(k, d_model)
         
     def forward(self, x, memory):
         """Propagate the input through the Decoder block.
@@ -70,6 +77,9 @@ class Decoder(nn.Module):
         x: Tensor
             Output tensor with shape (batch_size, K, d_model).
         """
+        # Add position encoding
+        x.add_(self._PE)
+
         # Self attention
         residual = x
         x = self._selfAttention(query=x, key=x, value=x, mask="subsequent")
