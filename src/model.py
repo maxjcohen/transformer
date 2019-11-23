@@ -6,8 +6,9 @@ import torch.nn.functional as F
 class MultiHeadAttention(nn.Module):
     """Multi Head Attention block from Attention is All You Need.
 
-    Given an input of shape (batch_size, d_model), we output a self attention
-    tensor of shape (batch_size, d_model).
+    Given 3 inputs of shape (batch_size, K, d_model), that will be used
+    to compute query, keys and values, we output a self attention
+    tensor of shape (batch_size, K, d_model).
 
     Attributes
     ----------
@@ -42,17 +43,21 @@ class MultiHeadAttention(nn.Module):
         
         self._W_o = nn.Linear(h*v, d_model)
         
-    def forward(self, xi):
+    def forward(self, query, key, value):
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
         followed by the Scaled Dot-Product. The result is concatenated 
-        and returned with shape (batch_size, d_model).
+        and returned with shape (batch_size, K, d_model).
 
         Parameters
         ----------
-        xi: Tensor
-            Input tensor with shape (batch_size, K, d_model).
+        query: Tensor
+            Input tensor with shape (batch_size, K, d_model) used to compute queries.
+        key: Tensor
+            Input tensor with shape (batch_size, K, d_model) used to compute keys.
+        value: Tensor
+            Input tensor with shape (batch_size, K, d_model) used to compute values.
 
         Returns
         -------
@@ -61,9 +66,9 @@ class MultiHeadAttention(nn.Module):
         """
         attention_heads = []
         for W_q, W_k, W_v in zip(self._W_q, self._W_k, self._W_v):
-            queries = W_q(xi)
-            keys = W_k(xi)
-            values = W_v(xi)
+            queries = W_q(query)
+            keys = W_k(key)
+            values = W_v(value)
 
             # Scaled Dot Product
             scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(queries.shape[1]), dim=-1)
@@ -188,7 +193,7 @@ class EncoderBlock(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         residual = x
-        x = self._multiHeadAttention(x)
+        x = self._multiHeadAttention(query=x, key=x, value=x)
         x.add_(residual)
         x = self._layerNorm1(x)
         
