@@ -7,3 +7,6 @@
 
 # Jupyter checkpoints
 .ipynb_checkpoints
+
+# Doc
+_build
