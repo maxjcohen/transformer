@@ -43,7 +43,7 @@ class MultiHeadAttention(nn.Module):
         
         self._W_o = nn.Linear(h*v, d_model)
         
-    def forward(self, query, key, value):
+    def forward(self, query, key, value, mask=None):
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
@@ -58,6 +58,9 @@ class MultiHeadAttention(nn.Module):
             Input tensor with shape (batch_size, K, d_model) used to compute keys.
         value: Tensor
             Input tensor with shape (batch_size, K, d_model) used to compute values.
+        mask: str, optional
+            Mask to apply on scores before computing attention.
+            One of "subsequent", None. Default is None.
 
         Returns
         -------
@@ -72,6 +75,12 @@ class MultiHeadAttention(nn.Module):
 
             # Scaled Dot Product
             scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(queries.shape[1]), dim=-1)
+
+            # Mask scores
+            if mask == "subsequent":
+                scores_mask = torch.triu(torch.ones((scores[0].shape)), diagonal=1).bool()
+                scores.masked_fill(scores_mask, float('-inf'))
+            
             attention = torch.bmm(scores, values)
             
             attention_heads.append(attention)
