@@ -144,9 +144,9 @@ class EncoderBlock(nn.Module):
 
     Attributes
     ----------
-    multiHeadAttention: Module
+    selfAttention: Module
         Multi Head Attention block.
-    positionWiseFeedForward: Module
+    feedForward: Module
         Point-wise Feed Forward block.
     layerNorm1: LayerNorm
         First normalization layer from the paper `Layer Normalization`.
@@ -169,8 +169,8 @@ class EncoderBlock(nn.Module):
         """
         super().__init__()
         
-        self._multiHeadAttention = MultiHeadAttention(d_model, q, v, h)
-        self._positionWiseFeedForward = PositionwiseFeedForwad(d_model)
+        self._selfAttention = MultiHeadAttention(d_model, q, v, h)
+        self._feedForward = PositionwiseFeedForwad(d_model)
         
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
@@ -192,12 +192,12 @@ class EncoderBlock(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         residual = x
-        x = self._multiHeadAttention(query=x, key=x, value=x)
+        x = self._selfAttention(query=x, key=x, value=x)
         x.add_(residual)
         x = self._layerNorm1(x)
         
         redisual = x
-        x = self._positionWiseFeedForward(x)
+        x = self._feedForward(x)
         x.add_(residual)
         x = self._layerNorm2(x)
         
