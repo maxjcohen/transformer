@@ -129,8 +129,7 @@ class PositionwiseFeedForwad(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         # Switch to channel first for torch convolutions compatibility
-        x.transpose_(2, 1)
-        
+        x = x.transpose(2, 1)
         x = self._linear2(F.relu(self._linear1(x)))
         
         # Switch back to orinigal dimensions
