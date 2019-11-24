@@ -93,7 +93,7 @@ class MultiHeadAttention(nn.Module):
         
         return self_attention
 
-class PositionwiseFeedForwad(nn.Module):
+class PositionwiseFeedForward(nn.Module):
     """Position-wise Feed Forward Network block from Attention is All You Need.
 
     Apply two linear transformations to each input, separately but indetically. We

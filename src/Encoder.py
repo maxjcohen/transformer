@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.blocks import MultiHeadAttention, PositionwiseFeedForwad
+from src.blocks import MultiHeadAttention, PositionwiseFeedForward
 from src.utils import generate_positional_encoding
 
 class Encoder(nn.Module):
@@ -44,7 +44,7 @@ class Encoder(nn.Module):
         super().__init__()
         
         self._selfAttention = MultiHeadAttention(d_model, q, v, h)
-        self._feedForward = PositionwiseFeedForwad(d_model)
+        self._feedForward = PositionwiseFeedForward(d_model)
         
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
