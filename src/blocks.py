@@ -118,8 +118,8 @@ class PositionwiseFeedForward(nn.Module):
         """
         super().__init__()
         
-        self._linear1 = nn.Conv1d(d_model, d_ff, kernel_size=1)
-        self._linear2 = nn.Conv1d(d_ff, d_model, kernel_size=1)
+        self._linear1 = nn.Linear(d_model, d_ff)
+        self._linear2 = nn.Linear(d_ff, d_model)
         
     def forward(self, x):
         """Propagate forward the input through the PFF block.
@@ -137,10 +137,4 @@ class PositionwiseFeedForward(nn.Module):
         x: Tensor
             Output tensor with shape (batch_size, K, d_model).
         """
-        # Switch to channel first for torch convolutions compatibility
-        x = x.transpose(2, 1)
-        x = self._linear2(F.relu(self._linear1(x)))
-        
-        # Switch back to orinigal dimensions
-        x.transpose_(2, 1)
-        return x
+        return self._linear2(F.relu(self._linear1(x)))
