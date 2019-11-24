@@ -2,6 +2,10 @@
 .env
 .vscode
 
+# Dataset
+*.npz
+labels.json
+
 # Compiled python
 *.pyc
 
