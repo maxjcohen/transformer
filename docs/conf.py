@@ -34,11 +34,18 @@ release = '0.0.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
 ]
 
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    'torch': ('http://pytorch.org/docs/master/', None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
