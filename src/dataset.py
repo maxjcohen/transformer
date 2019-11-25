@@ -4,7 +4,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import torch
 
-class OzeNPZDataset(Dataset):
+class OzeDataset(Dataset):
     """Torch dataset for Oze datachallenge.
 
     Load dataset from a single npz file.
