@@ -80,3 +80,60 @@ class OzeDataset(Dataset):
 
     def __len__(self):
         return self._x.shape[0]
+
+class OzeDatasetWindow(OzeDataset):
+    """Torch dataset with windowed time dimension.
+
+    Load dataset from a single npz file.
+
+    Attributes
+    ----------
+    x: np.array
+        Dataset input of shape (m, W, K, 37).
+    y: np.array
+        Dataset target of shape (m, W, K, 8).
+    labels: Dict
+        Ordered labels list for R, Z and X.
+    m: np.array
+        Normalization constant.
+    M: np.array
+        Normalization constant.
+    """
+
+    def __init__(self, dataset_path, labels_path="labels.json", window_size=5, padding=1, **kwargs):
+        """Load dataset from npz.
+
+        Parameters
+        ---------
+        dataset_x: str or Path
+            Path to the dataset inputs as npz.
+        labels_path: str or Path, optional
+            Path to the labels, divided in R, Z and X, in json format.
+            Default is "labels.json".
+        window_size: int, optional
+            Size of the window to apply on time dimension.
+            Default 5.
+        padding: int, optional
+            Padding size to apply on time dimension windowing.
+            Default 1.
+        """
+        super().__init__(dataset_path, labels_path, **kwargs)
+
+        self._window_dataset(window_size=window_size, padding=padding)
+
+    def _window_dataset(self, window_size=5, padding=1):
+        m, K, d_input = self._x.shape
+        _, _, d_output = self._y.shape
+
+        step = window_size - 2 * padding
+        n_step = (K - window_size - 1) // step + 1
+
+        dataset_x = np.empty((m, n_step, window_size, d_input), dtype=np.float32)
+        dataset_y = np.empty((m, n_step, step, d_output), dtype=np.float32)
+
+        for idx_step, idx in enumerate(range(0, K-window_size, step)):
+            dataset_x[:, idx_step, :, :] = self._x[:, idx:idx+window_size, :]
+            dataset_y[:, idx_step, :, :] = self._y[:, idx+padding:idx+window_size-padding, :]
+            
+        self._x = dataset_x
+        self._y = dataset_y
