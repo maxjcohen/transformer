@@ -13,37 +13,36 @@ class Transformer(nn.Module):
 
     Attributes
     ----------
-    layers_encoding: list of Modules
+    layers_encoding: :py:class:`list` of :class:`torch.nn.Module`
         stack of Encoder layers.
-    layers_decoding: list of Modules
+    layers_decoding: :py:class:`list` of :class:`torch.nn.Module`
         stack of Decoder layers.
-    embedding: Linear
+    embedding: :class:`torch.nn.Linear`
         Fully connected layer acting as embedding.
-    linear: Linear
+    linear: :class:`torch.nn.Linear`
         Fully connected output layer.
+
+    Parameters
+    ----------
+    d_input: :py:class:`int`
+        Model input dimension.
+    d_model: :py:class:`int`
+        Dimension of the input vector.
+    d_output: :py:class:`int`
+        Model output dimension.
+    q: :py:class:`int`
+        Dimension of queries and keys.
+    v: :py:class:`int`
+        Dimension of values.
+    h: :py:class:`int`
+        Number of heads.
+    k: :py:class:`int`
+        Time length.
+    N: :py:class:`int`
+        Number of encoder and decoder layers to stack.
     """
     def __init__(self, d_input, d_model, d_output, q, v, h, k, N):
-        """Create transformer structure from Encoder and Decoder blocks.
-
-        Parameters
-        ----------
-        d_input: int
-            Model input dimension.
-        d_model: int
-            Dimension of the input vector.
-        d_output:
-            Model output dimension.
-        q: int
-            Dimension of queries and keys.
-        v: int
-            Dimension of values.
-        h: int
-            Number of heads.
-        k: int
-            Time length.
-        N: int
-            Number of encoder and decoder layers to stack.
-        """
+        """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
     
         self._layers_encoding = [Encoder(d_model, q, v, h, k) for _ in range(N)]
