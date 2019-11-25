@@ -55,10 +55,6 @@ class OzeDataset(Dataset):
         Z = Z.transpose((0, 2, 1))
         X = X.transpose((0, 2, 1))
 
-        R = R[:, :200, :]
-        Z = Z[:, :200, :]
-        X = X[:, :200, :]
-        
         # Store R, Z and X as x_train and y_train
         self._x = np.concatenate([Z, R], axis=-1)
         # Normalize
