@@ -12,29 +12,28 @@ class MultiHeadAttention(nn.Module):
 
     Attributes
     ----------
-    W_q: list of Linear
-        Query matricies Q with shape(d_model, q) for each head.
-    W_k: list of Linear
-        Keys matricies K with shape(d_model, q) for each head.
-    W_v: list of Linear
-        Values matricies V with shape(d_model, v) for each head.
-    W_o: Linear
-        Output matrix W^O with shape(h*v, d_model).
+    W_q: :py:class:`list` of :class:`torch.nn.Linear`
+        Query matricies Q with shape (d_model, q) for each head.
+    W_k: :py:class:`list` of :class:`torch.nn.Linear`
+        Keys matricies K with shape (d_model, q) for each head.
+    W_v: :py:class:`list` of :class:`torch.nn.Linear`
+        Values matricies V with shape (d_model, v) for each head.
+    W_o: :class:`torch.nn.Linear`
+        Output matrix W^O with shape (h*v, d_model).
+
+    Parameters
+    ----------
+    d_model: :py:class:`int`
+        Dimension of the input vector.
+    q: :py:class:`int`
+        Dimension of all query matrix.
+    v: :py:class:`int`
+        Dimension of all value matrix.
+    h: :py:class:`int`
+        Number of heads.
     """
     def __init__(self, d_model, q, v, h):
-        """Initialize the Multi Head Block.
-
-        Parameters
-        ----------
-        d_model: int
-            Dimension of the input vector.
-        q: int
-            Dimension of all query matrix.
-        v: int
-            Dimension of all value matrix.
-        h: int
-            Number of heads.
-        """
+        """Initialize the Multi Head Block."""
         super().__init__()
         
         self._W_q = [nn.Linear(d_model, q) for _ in range(h)]
@@ -52,19 +51,19 @@ class MultiHeadAttention(nn.Module):
 
         Parameters
         ----------
-        query: Tensor
+        query: :class:`torch.Tensor`
             Input tensor with shape (batch_size, K, d_model) used to compute queries.
-        key: Tensor
+        key: :class:`torch.Tensor`
             Input tensor with shape (batch_size, K, d_model) used to compute keys.
-        value: Tensor
+        value: :class:`torch.Tensor`
             Input tensor with shape (batch_size, K, d_model) used to compute values.
-        mask: str, optional
+        mask: :py:class:`str`, optional
             Mask to apply on scores before computing attention.
             One of "subsequent", None. Default is None.
 
         Returns
         -------
-        self_attention: Tensor
+        self_attention: :class:`torch.Tensor`
             Self attention tensor with shape (batch_size, K, d_model).
         """
         attention_heads = []
@@ -101,21 +100,20 @@ class PositionwiseFeedForward(nn.Module):
 
     Attributes
     ----------
-    linear1: Conv1D
+    linear1: :class:`torch.nn.Linear`
         First linear transformation.
-    linear2: Conv1D
+    linear2: :class:`torch.nn.Linear`
         Second linear transformation.
+
+    Parameters
+    ----------
+    d_model: :py:class:`int`
+        Dimension of input tensor.
+    d_dd: :py:class:`int`, optional
+        Dimension of hidden layer, default is 2048.
     """
     def __init__(self, d_model, d_ff=2048):
-        """Initialize the PFF block.
-
-        Parameters
-        ----------
-        d_model: int
-            Dimension of input tensor.
-        d_dd: int, optional
-            Dimension of hidden layer, default is 2048.
-        """
+        """Initialize the PFF block."""
         super().__init__()
         
         self._linear1 = nn.Linear(d_model, d_ff)
@@ -129,12 +127,12 @@ class PositionwiseFeedForward(nn.Module):
 
         Parameters
         ----------
-        x: Tensor
+        x: :class:`torch.Tensor`
             Input tensor with shape (batch_size, K, d_model).
 
         Returns
         -------
-        x: Tensor
+        x: :class:`torch.Tensor`
             Output tensor with shape (batch_size, K, d_model).
         """
         return self._linear2(F.relu(self._linear1(x)))

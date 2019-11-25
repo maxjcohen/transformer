@@ -14,37 +14,36 @@ class Decoder(nn.Module):
 
     Attributes
     ----------
-    selfAttention: Module
+    selfAttention: :class:`torch.nn.Module`
         Multi Head Attention block.
-    encoderDecoderAttention: Module
+    encoderDecoderAttention: :class:`torch.nn.Module`
         Multi Head Attention block.
-    feedForward: Module
+    feedForward: :class:`torch.nn.Module`
         Point-wise Feed Forward block.
-    layerNorm1: LayerNorm
+    layerNorm1: :class:`torch.nn.LayerNorm`
         First normalization layer from the paper `Layer Normalization`.
-    layerNorm2: LayerNorm
+    layerNorm2: :class:`torch.nn.LayerNorm`
         Second normalization layer from the paper `Layer Normalization`.
-    layerNorm3: LayerNorm
+    layerNorm3: :class:`torch.nn.LayerNorm`
         Third normalization layer from the paper `Layer Normalization`.
-    PE: Tensor
+    PE: :class:`torch.Tensor`
         Position encoding.
+
+    Parameters
+    ----------
+    d_model: :py:class:`int`
+        Dimension of the input vector.
+    q: :py:class:`int`
+        Dimension of all query matrix.
+    v: :py:class:`int`
+        Dimension of all value matrix.
+    h: :py:class:`int`
+        Number of heads.
+    k: :py:class:`int`
+        Time window length.
     """
     def __init__(self, d_model, q, v, h, k):
-        """Initialize the Decoder block
-
-        Parameters
-        ----------
-        d_model: int
-            Dimension of the input vector.
-        q: int
-            Dimension of all query matrix.
-        v: int
-            Dimension of all value matrix.
-        h: int
-            Number of heads.
-        k: int
-            Time window length.
-        """
+        """Initialize the Decoder block"""
         super().__init__()
         
         self._selfAttention = MultiHeadAttention(d_model, q, v, h)
@@ -66,15 +65,15 @@ class Decoder(nn.Module):
 
         Parameters
         ----------
-        x: Tensor
+        x: :class:`torch.Tensor`
             Input tensor with shape (batch_size, K, d_model).
-        memory: Tensor
+        memory: :class:`torch.Tensor`
             Memory tensor with shape (batch_size, K, d_model)
             from encoder output.
         
         Returns
         -------
-        x: Tensor
+        x: :class:`torch.Tensor`
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding

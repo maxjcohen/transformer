@@ -60,11 +60,11 @@ class Transformer(nn.Module):
         Parameters
         ----------
         x: Tensor
-            Tensor of shape (batch_size, K, d_input).
+            :class:`torch.Tensor` of shape (batch_size, K, d_input).
         
         Returns
         -------
-        output: Tensor
+        output: :class:`torch.Tensor`
             Output tensor with shape (batch_size, K, d_output).
         """
         # Embeddin module
@@ -81,5 +81,5 @@ class Transformer(nn.Module):
         
         # Output module
         output = self._linear(decoding)
-        output = torch.sigmoid(output)
+        # output = torch.sigmoid(output)
         return output

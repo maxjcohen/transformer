@@ -5,14 +5,14 @@ def generate_positional_encoding(length, d_model):
 
     Parameters
     ----------
-    length: int
+    length: :py:class:`int`
         Time window length, i.e. K.
-    d_model: int
+    d_model: :py:class:`int`
         Dimension of the model vector.
 
     Returns
     -------
-    PE: Tensor
+    PE: :class:`torch.Tensor`
         Tensor of shape (K, d_model).
     """
     PE = torch.zeros((length, d_model))

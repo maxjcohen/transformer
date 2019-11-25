@@ -11,29 +11,28 @@ class OzeDataset(Dataset):
 
     Attributes
     ----------
-    x: np.array
+    x: :class:`numpy.ndarray`
         Dataset input of shape (m, K, 37).
-    y: np.array
+    y: :class:`numpy.ndarray`
         Dataset target of shape (m, K, 8).
-    labels: Dict
+    labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
-    m: np.array
+    m: :class:`numpy.ndarray`
         Normalization constant.
-    M: np.array
+    M: :class:`numpy.ndarray`
         Normalization constant.
+
+    Parameters
+    ---------
+    dataset_x: :py:class:`str` or :class:`pathlib.Path`
+        Path to the dataset inputs as npz.
+    labels_path: :py:class:`str` or :class:`pathlib.Path`, optional
+        Path to the labels, divided in R, Z and X, in json format.
+        Default is "labels.json".
     """
 
     def __init__(self, dataset_path, labels_path="labels.json", **kwargs):
-        """Load dataset from npz.
-
-        Parameters
-        ---------
-        dataset_x: str or Path
-            Path to the dataset inputs as npz.
-        labels_path: str or Path, optional
-            Path to the labels, divided in R, Z and X, in json format.
-            Default is "labels.json".
-        """
+        """Load dataset from npz."""
         super().__init__(**kwargs)
 
         self._load_npz(dataset_path, labels_path)
@@ -88,35 +87,35 @@ class OzeDatasetWindow(OzeDataset):
 
     Attributes
     ----------
-    x: np.array
+    x: :class:`numpy.ndarray`
         Dataset input of shape (m, W, K, 37).
-    y: np.array
+    y: :class:`numpy.ndarray`
         Dataset target of shape (m, W, K, 8).
-    labels: Dict
+    labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
-    m: np.array
+    m: :class:`numpy.ndarray`
         Normalization constant.
-    M: np.array
+    M: :class:`numpy.ndarray`
         Normalization constant.
+
+    
+    Parameters
+    ---------
+    dataset_x: :py:class:`str` or :class:`pathlib.Path`
+        Path to the dataset inputs as npz.
+    labels_path: :py:class:`str` or :class:`pathlib.Path`, optional
+        Path to the labels, divided in R, Z and X, in json format.
+        Default is "labels.json".
+    window_size: :py:class:`int`, optional
+        Size of the window to apply on time dimension.
+        Default 5.
+    padding: :py:class:`int`, optional
+        Padding size to apply on time dimension windowing.
+        Default 1.
     """
 
     def __init__(self, dataset_path, labels_path="labels.json", window_size=5, padding=1, **kwargs):
-        """Load dataset from npz.
-
-        Parameters
-        ---------
-        dataset_x: str or Path
-            Path to the dataset inputs as npz.
-        labels_path: str or Path, optional
-            Path to the labels, divided in R, Z and X, in json format.
-            Default is "labels.json".
-        window_size: int, optional
-            Size of the window to apply on time dimension.
-            Default 5.
-        padding: int, optional
-            Padding size to apply on time dimension windowing.
-            Default 1.
-        """
+        """Load dataset from npz."""
         super().__init__(dataset_path, labels_path, **kwargs)
 
         self._window_dataset(window_size=window_size, padding=padding)
