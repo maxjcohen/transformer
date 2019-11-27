@@ -57,17 +57,17 @@ class OzeDataset(Dataset):
         # Store R, Z and X as x_train and y_train
         self._x = np.concatenate([Z, R], axis=-1)
         # Normalize
-        M = np.max(self._x, axis=(0, 1))
-        m = np.min(self._x, axis=(0, 1))
-        self._x = (self._x - m) / (M - m + np.finfo(float).eps)
+        mean = np.mean(self._x, axis=(0, 1))
+        std = np.std(self._x, axis=(0, 1))
+        self._x = (self._x - mean) / (std + np.finfo(float).eps)
         # Convert to float32
         self._x = torch.Tensor(self._x)
 
         self._y = X
         # Normalize
-        self.M = np.max(self._y, axis=(0, 1))
-        self.m = np.min(self._y, axis=(0, 1))
-        self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
+        self.mean = np.mean(self._y, axis=(0, 1))
+        self.std = np.std(self._y, axis=(0, 1))
+        self._y = (self._y - self.mean) / (self.std + np.finfo(float).eps)
         # Convert to float32
         self._y = torch.Tensor(self._y)
 
