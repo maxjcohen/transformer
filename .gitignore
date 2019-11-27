@@ -6,6 +6,9 @@
 *.npz
 labels.json
 
+# Models
+*.pth
+
 # Compiled python
 *.pyc
 
