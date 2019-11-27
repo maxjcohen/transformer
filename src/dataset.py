@@ -25,15 +25,18 @@ class OzeDataset(Dataset):
     labels_path: :py:class:`str` or :class:`pathlib.Path`, optional
         Path to the labels, divided in R, Z and X, in json format.
         Default is "labels.json".
+    normalize: :py:class:`str`, optional
+        Data normalization method, one of "mean", "max".
+        Default is "max".
     """
 
-    def __init__(self, dataset_path, labels_path="labels.json", **kwargs):
+    def __init__(self, dataset_path, labels_path="labels.json", normalize="max", **kwargs):
         """Load dataset from npz."""
         super().__init__(**kwargs)
 
-        self._load_npz(dataset_path, labels_path)
+        self._load_npz(dataset_path, labels_path, normalize)
 
-    def _load_npz(self, dataset_path, labels_path):
+    def _load_npz(self, dataset_path, labels_path, normalize):
         """Load dataset from csv and create x_train and y_train tensors."""
         # Load dataset as csv
         dataset = np.load(dataset_path)
@@ -50,21 +53,30 @@ class OzeDataset(Dataset):
         Z = Z.transpose((0, 2, 1))
         X = X.transpose((0, 2, 1))
 
-        # Store R, Z and X as x_train and y_train
+        # Store R, Z and X as x and y
         self._x = np.concatenate([Z, R], axis=-1)
+        self._y = X
+
         # Normalize
-        mean = np.mean(self._x, axis=(0, 1))
-        std = np.std(self._x, axis=(0, 1))
-        self._x = (self._x - mean) / (std + np.finfo(float).eps)
+        if normalize == "mean":
+            mean = np.mean(self._x, axis=(0, 1))
+            std = np.std(self._x, axis=(0, 1))
+            self._x = (self._x - mean) / (std + np.finfo(float).eps)
+
+            self.mean = np.mean(self._y, axis=(0, 1))
+            self.std = np.std(self._y, axis=(0, 1))
+            self._y = (self._y - self.mean) / (self.std + np.finfo(float).eps)
+        elif normalize == "max":
+            M = np.max(self._x, axis=(0, 1))
+            m = np.min(self._x, axis=(0, 1))
+            self._x = (self._x - m) / (M - m + np.finfo(float).eps)
+
+            self.M = np.max(self._y, axis=(0, 1))
+            self.m = np.min(self._y, axis=(0, 1))
+            self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
+                
         # Convert to float32
         self._x = torch.Tensor(self._x)
-
-        self._y = X
-        # Normalize
-        self.mean = np.mean(self._y, axis=(0, 1))
-        self.std = np.std(self._y, axis=(0, 1))
-        self._y = (self._y - self.mean) / (self.std + np.finfo(float).eps)
-        # Convert to float32
         self._y = torch.Tensor(self._y)
 
     def __getitem__(self, idx):
