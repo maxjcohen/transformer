@@ -11,10 +11,6 @@ class OzeDataset(Dataset):
 
     Attributes
     ----------
-    x: :class:`torch.Tensor`
-        Dataset input of shape (m, K, 37).
-    y: :class:`torch.Tensor`
-        Dataset target of shape (m, K, 8).
     labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
     m: :class:`numpy.ndarray`
@@ -87,10 +83,6 @@ class OzeDatasetWindow(OzeDataset):
 
     Attributes
     ----------
-    x: :class:`numpy.ndarray`
-        Dataset input of shape (m, W, K, 37).
-    y: :class:`numpy.ndarray`
-        Dataset target of shape (m, W, K, 8).
     labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
     m: :class:`numpy.ndarray`

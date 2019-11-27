@@ -12,23 +12,6 @@ class Decoder(nn.Module):
     Apply two Multi Head Attention block followed by a Point-wise Feed Forward block.
     Residual sum and normalization are applied at each step.
 
-    Attributes
-    ----------
-    selfAttention: :class:`torch.nn.Module`
-        Multi Head Attention block.
-    encoderDecoderAttention: :class:`torch.nn.Module`
-        Multi Head Attention block.
-    feedForward: :class:`torch.nn.Module`
-        Point-wise Feed Forward block.
-    layerNorm1: :class:`torch.nn.LayerNorm`
-        First normalization layer from the paper `Layer Normalization`.
-    layerNorm2: :class:`torch.nn.LayerNorm`
-        Second normalization layer from the paper `Layer Normalization`.
-    layerNorm3: :class:`torch.nn.LayerNorm`
-        Third normalization layer from the paper `Layer Normalization`.
-    PE: :class:`torch.Tensor`
-        Position encoding.
-
     Parameters
     ----------
     d_model: :py:class:`int`

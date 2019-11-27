@@ -11,17 +11,6 @@ class Transformer(nn.Module):
     Embedding has been replaced with a fully connected layer,
     the last layer softmax is now a sigmoid.
 
-    Attributes
-    ----------
-    layers_encoding: :py:class:`list` of :class:`torch.nn.Module`
-        stack of Encoder layers.
-    layers_decoding: :py:class:`list` of :class:`torch.nn.Module`
-        stack of Decoder layers.
-    embedding: :class:`torch.nn.Linear`
-        Fully connected layer acting as embedding.
-    linear: :class:`torch.nn.Linear`
-        Fully connected output layer.
-
     Parameters
     ----------
     d_input: :py:class:`int`

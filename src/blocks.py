@@ -10,17 +10,6 @@ class MultiHeadAttention(nn.Module):
     to compute query, keys and values, we output a self attention
     tensor of shape (batch_size, K, d_model).
 
-    Attributes
-    ----------
-    W_q: :py:class:`list` of :class:`torch.nn.Linear`
-        Query matricies Q with shape (d_model, q) for each head.
-    W_k: :py:class:`list` of :class:`torch.nn.Linear`
-        Keys matricies K with shape (d_model, q) for each head.
-    W_v: :py:class:`list` of :class:`torch.nn.Linear`
-        Values matricies V with shape (d_model, v) for each head.
-    W_o: :class:`torch.nn.Linear`
-        Output matrix W^O with shape (h*v, d_model).
-
     Parameters
     ----------
     d_model: :py:class:`int`
@@ -97,13 +86,6 @@ class PositionwiseFeedForward(nn.Module):
 
     Apply two linear transformations to each input, separately but indetically. We
     implement them as 1D convolutions. Input and output have a shape (batch_size, d_model).
-
-    Attributes
-    ----------
-    linear1: :class:`torch.nn.Linear`
-        First linear transformation.
-    linear2: :class:`torch.nn.Linear`
-        Second linear transformation.
 
     Parameters
     ----------

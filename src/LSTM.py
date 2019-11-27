@@ -7,13 +7,6 @@ import torch.nn as nn
 class LSTMBenchmark(nn.Module):
     """Benchmark LSTM.
 
-    Attributes
-    ----------
-    lstm: :class:`torch.nn.LSTM`
-        LSTM layers.
-    linear: :class:`torch.nn.Linear`
-        Fully connected layer.
-
     Parameters
     ----------
     input_dim: :py:class:`int`
