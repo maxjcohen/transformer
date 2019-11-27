@@ -20,8 +20,10 @@ class MultiHeadAttention(nn.Module):
         Dimension of all value matrix.
     h: :py:class:`int`
         Number of heads.
+    k: :py:class:`int`
+        Time window length.
     """
-    def __init__(self, d_model, q, v, h):
+    def __init__(self, d_model, q, v, h, k):
         """Initialize the Multi Head Block."""
         super().__init__()
         
@@ -31,6 +33,7 @@ class MultiHeadAttention(nn.Module):
         
         self._W_o = nn.Linear(h*v, d_model)
         
+        self._K = k
     def forward(self, query, key, value, mask=None):
         """Propagate forward the input through the MHB.
 
@@ -62,7 +65,7 @@ class MultiHeadAttention(nn.Module):
             values = W_v(value)
 
             # Scaled Dot Product
-            scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(queries.shape[1]), dim=-1)
+            scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K), dim=-1)
 
             # Mask scores
             if mask == "subsequent":

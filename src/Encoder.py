@@ -29,7 +29,7 @@ class Encoder(nn.Module):
         """Initialize the Encoder block"""
         super().__init__()
         
-        self._selfAttention = MultiHeadAttention(d_model, q, v, h)
+        self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._feedForward = PositionwiseFeedForward(d_model)
         
         self._layerNorm1 = nn.LayerNorm(d_model)
