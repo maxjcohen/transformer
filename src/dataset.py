@@ -11,9 +11,9 @@ class OzeDataset(Dataset):
 
     Attributes
     ----------
-    x: :class:`numpy.ndarray`
+    x: :class:`torch.Tensor`
         Dataset input of shape (m, K, 37).
-    y: :class:`numpy.ndarray`
+    y: :class:`torch.Tensor`
         Dataset target of shape (m, K, 8).
     labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
@@ -46,7 +46,7 @@ class OzeDataset(Dataset):
         with open(labels_path, "r") as stream_json:
             self.labels = json.load(stream_json)
 
-        R, X, Z = dataset['R'], dataset['X'], dataset['Z']
+        R, X, Z = dataset['R'].astype(np.float32), dataset['X'].astype(np.float32), dataset['Z'].astype(np.float32)
         m = Z.shape[0]  # Number of training example
         K = Z.shape[-1]  # Time serie length
 
@@ -61,7 +61,7 @@ class OzeDataset(Dataset):
         m = np.min(self._x, axis=(0, 1))
         self._x = (self._x - m) / (M - m + np.finfo(float).eps)
         # Convert to float32
-        self._x = self._x.astype(np.float32)
+        self._x = torch.Tensor(self._x)
 
         self._y = X
         # Normalize
@@ -69,7 +69,7 @@ class OzeDataset(Dataset):
         self.m = np.min(self._y, axis=(0, 1))
         self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
         # Convert to float32
-        self._y = self._y.astype(np.float32)
+        self._y = torch.Tensor(self._y)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
