@@ -5,6 +5,7 @@ Transformer
    :maxdepth: 4
 
    Transformer
+   LSTM
    Decoder
    Encoder
    blocks
