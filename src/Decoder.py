@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.blocks import MultiHeadAttention, PositionwiseFeedForward
+from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention, PositionwiseFeedForward
 from src.utils import generate_positional_encoding
 
 class Decoder(nn.Module):

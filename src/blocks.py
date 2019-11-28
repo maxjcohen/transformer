@@ -84,6 +84,90 @@ class MultiHeadAttention(nn.Module):
         
         return self_attention
 
+class MultiHeadAttentionChunk(nn.Module):
+    """Multi Head Attention block with chunk.
+
+    Given 3 inputs of shape (batch_size, K, d_model), that will be used
+    to compute query, keys and values, we output a self attention
+    tensor of shape (batch_size, K, d_model).
+    Queries, keys and values are divided in chunks of constant size.
+
+    Parameters
+    ----------
+    d_model: :py:class:`int`
+        Dimension of the input vector.
+    q: :py:class:`int`
+        Dimension of all query matrix.
+    v: :py:class:`int`
+        Dimension of all value matrix.
+    h: :py:class:`int`
+        Number of heads.
+    k: :py:class:`int`
+        Time window length.
+    """
+    def __init__(self, d_model, q, v, h, k):
+        """Initialize the Multi Head Block."""
+        super().__init__()
+        
+        self._W_q = [nn.Linear(d_model, q) for _ in range(h)]
+        self._W_k = [nn.Linear(d_model, q) for _ in range(h)]
+        self._W_v = [nn.Linear(d_model, v) for _ in range(h)]
+        
+        self._W_o = nn.Linear(h*v, d_model)
+        
+        self._K = k
+        self._n_chunk = self._K // 24
+        
+    def forward(self, query, key, value, mask=None):
+        """Propagate forward the input through the MHB.
+
+        We compute for each head the queries, keys and values matrices,
+        followed by the Scaled Dot-Product. The result is concatenated 
+        and returned with shape (batch_size, K, d_model).
+
+        Parameters
+        ----------
+        query: :class:`torch.Tensor`
+            Input tensor with shape (batch_size, K, d_model) used to compute queries.
+        key: :class:`torch.Tensor`
+            Input tensor with shape (batch_size, K, d_model) used to compute keys.
+        value: :class:`torch.Tensor`
+            Input tensor with shape (batch_size, K, d_model) used to compute values.
+        mask: :py:class:`str`, optional
+            Mask to apply on scores before computing attention.
+            One of "subsequent", None. Default is None.
+
+        Returns
+        -------
+        self_attention: :class:`torch.Tensor`
+            Self attention tensor with shape (batch_size, K, d_model).
+        """
+        attention_heads = []
+        for W_q, W_k, W_v in zip(self._W_q, self._W_k, self._W_v):
+            queries = torch.cat(torch.chunk(W_q(query), self._n_chunk, dim=1), dim=0)
+            keys = torch.cat(torch.chunk(W_k(key), self._n_chunk, dim=1), dim=0)
+            values = torch.cat(torch.chunk(W_v(value), self._n_chunk, dim=1), dim=0)
+
+            # Scaled Dot Product
+            scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K), dim=-1)
+
+            # Mask scores
+            if mask == "subsequent":
+                scores_mask = torch.triu(torch.ones((scores[0].shape)), diagonal=1).bool()
+                scores.masked_fill(scores_mask, float('-inf'))
+            
+            attention = torch.bmm(scores, values)
+            
+            attention_heads.append(torch.cat(torch.chunk(attention, self._n_chunk, dim=0), dim=1))
+        
+        # Concatenat the heads
+        attention_heads = torch.cat(attention_heads, dim=-1)
+        
+        # Apply linear transformation W^O
+        self_attention = self._W_o(attention_heads)
+        
+        return self_attention
+
 class PositionwiseFeedForward(nn.Module):
     """Position-wise Feed Forward Network block from Attention is All You Need.
 
