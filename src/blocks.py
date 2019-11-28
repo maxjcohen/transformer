@@ -26,14 +26,20 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, q, v, h, k):
         """Initialize the Multi Head Block."""
         super().__init__()
+
+        self._K = k
         
+        # Query, keys and value matrices
         self._W_q = [nn.Linear(d_model, q) for _ in range(h)]
         self._W_k = [nn.Linear(d_model, q) for _ in range(h)]
         self._W_v = [nn.Linear(d_model, v) for _ in range(h)]
         
+        # Output linear function
         self._W_o = nn.Linear(h*v, d_model)
         
-        self._K = k
+        # Score mask for decoder
+        self._scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
+
     def forward(self, query, key, value, mask=None):
         """Propagate forward the input through the MHB.
 
@@ -69,8 +75,7 @@ class MultiHeadAttention(nn.Module):
 
             # Mask scores
             if mask == "subsequent":
-                scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
-                scores = scores.masked_fill(scores_mask, float('-inf'))
+                scores = scores.masked_fill(self._scores_mask, float('-inf'))
 
             scores = F.softmax(scores, dim=-1)
             
@@ -112,6 +117,9 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
         self._n_chunk = self._K // 24
         
+        # Score mask for decoder
+        self._scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
+        
     def forward(self, query, key, value, mask=None):
         """Propagate forward the input through the MHB.
 
@@ -147,8 +155,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
             # Mask scores
             if mask == "subsequent":
-                scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
-                scores = scores.masked_fill(scores_mask, float('-inf'))
+                scores = scores.masked_fill(self._scores_mask, float('-inf'))
 
             scores = F.softmax(scores, dim=-1)
 
