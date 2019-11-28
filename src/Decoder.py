@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention, PositionwiseFeedForward
+from src.blocks import MultiHeadAttention, MultiHeadAttentionChunk, PositionwiseFeedForward
 from src.utils import generate_positional_encoding
 
 class Decoder(nn.Module):
@@ -24,10 +24,18 @@ class Decoder(nn.Module):
         Number of heads.
     k: :py:class:`int`
         Time window length.
+    time_chunk: :py:class:`bool`
+        If True, will divide time dimension in chunks.
+        Default True.
     """
-    def __init__(self, d_model, q, v, h, k):
+    def __init__(self, d_model, q, v, h, k, time_chunk=True):
         """Initialize the Decoder block"""
         super().__init__()
+
+        if time_chunk:
+            from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention
+        else:
+            from src.blocks import MultiHeadAttention
         
         self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._encoderDecoderAttention = MultiHeadAttention(d_model, q, v, h, k)

@@ -29,13 +29,16 @@ class Transformer(nn.Module):
         Time length.
     N: :py:class:`int`
         Number of encoder and decoder layers to stack.
+    time_chunk: :py:class:`bool`
+        If True, will divide time dimension in chunks.
+        Default True.
     """
-    def __init__(self, d_input, d_model, d_output, q, v, h, k, N):
+    def __init__(self, d_input, d_model, d_output, q, v, h, k, N, time_chunk=True):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
     
-        self._layers_encoding = [Encoder(d_model, q, v, h, k) for _ in range(N)]
-        self._layers_decoding = [Decoder(d_model, q, v, h, k) for _ in range(N)]
+        self._layers_encoding = [Encoder(d_model, q, v, h, k, time_chunk) for _ in range(N)]
+        self._layers_decoding = [Decoder(d_model, q, v, h, k, time_chunk) for _ in range(N)]
         
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
