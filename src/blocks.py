@@ -85,7 +85,7 @@ class MultiHeadAttention(nn.Module):
         
         return self_attention
 
-class MultiHeadAttentionChunk(nn.Module):
+class MultiHeadAttentionChunk(MultiHeadAttention):
     """Multi Head Attention block with chunk.
 
     Given 3 inputs of shape (batch_size, K, d_model), that will be used
@@ -106,17 +106,10 @@ class MultiHeadAttentionChunk(nn.Module):
     k: :py:class:`int`
         Time window length.
     """
-    def __init__(self, d_model, q, v, h, k):
+    def __init__(self, d_model, q, v, h, k, **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__()
-        
-        self._W_q = [nn.Linear(d_model, q) for _ in range(h)]
-        self._W_k = [nn.Linear(d_model, q) for _ in range(h)]
-        self._W_v = [nn.Linear(d_model, v) for _ in range(h)]
-        
-        self._W_o = nn.Linear(h*v, d_model)
-        
-        self._K = k
+        super().__init__(d_model, q, v, h, k, **kwargs)
+
         self._n_chunk = self._K // 24
         
     def forward(self, query, key, value, mask=None):
