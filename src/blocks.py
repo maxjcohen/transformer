@@ -28,14 +28,15 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
 
         self._K = k
+        self._h = h
         
         # Query, keys and value matrices
-        self._W_q = [nn.Linear(d_model, q) for _ in range(h)]
-        self._W_k = [nn.Linear(d_model, q) for _ in range(h)]
-        self._W_v = [nn.Linear(d_model, v) for _ in range(h)]
+        self._W_q = nn.Linear(d_model, q*self._h)
+        self._W_k = nn.Linear(d_model, q*self._h)
+        self._W_v = nn.Linear(d_model, v*self._h)
         
         # Output linear function
-        self._W_o = nn.Linear(h*v, d_model)
+        self._W_o = nn.Linear(self._h*v, d_model)
         
         # Score mask for decoder
         self._scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
@@ -64,26 +65,24 @@ class MultiHeadAttention(nn.Module):
         self_attention: :class:`torch.Tensor`
             Self attention tensor with shape (batch_size, K, d_model).
         """
-        attention_heads = []
-        for W_q, W_k, W_v in zip(self._W_q, self._W_k, self._W_v):
-            queries = W_q(query)
-            keys = W_k(key)
-            values = W_v(value)
+        # Compute Q, K and V, concatenate heads on batch dimension
+        queries = torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0)
+        keys = torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0)
+        values = torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0)
 
-            # Scaled Dot Product
-            scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        # Scaled Dot Product
+        scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
-            # Mask scores
-            if mask == "subsequent":
-                scores = scores.masked_fill(self._scores_mask, float('-inf'))
+        # Mask scores
+        if mask == "subsequent":
+            scores = scores.masked_fill(self._scores_mask, float('-inf'))
 
-            scores = F.softmax(scores, dim=-1)
-            
-            attention = torch.bmm(scores, values)
-            attention_heads.append(attention)
+        scores = F.softmax(scores, dim=-1)
+        
+        attention = torch.bmm(scores, values)
         
         # Concatenat the heads
-        attention_heads = torch.cat(attention_heads, dim=-1)
+        attention_heads = torch.cat(attention.chunk(self._h, dim=0), dim=-1)
         
         # Apply linear transformation W^O
         self_attention = self._W_o(attention_heads)
@@ -144,26 +143,23 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         self_attention: :class:`torch.Tensor`
             Self attention tensor with shape (batch_size, K, d_model).
         """
-        attention_heads = []
-        for W_q, W_k, W_v in zip(self._W_q, self._W_k, self._W_v):
-            queries = torch.cat(torch.chunk(W_q(query), self._n_chunk, dim=1), dim=0)
-            keys = torch.cat(torch.chunk(W_k(key), self._n_chunk, dim=1), dim=0)
-            values = torch.cat(torch.chunk(W_v(value), self._n_chunk, dim=1), dim=0)
+        # Compute Q, K and V, concatenate heads on batch dimension
+        queries = torch.cat(torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
+        keys = torch.cat(torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
+        values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
 
-            # Scaled Dot Product
-            scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        # Scaled Dot Product
+        scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
-            # Mask scores
-            if mask == "subsequent":
-                scores = scores.masked_fill(self._scores_mask, float('-inf'))
-
-            scores = F.softmax(scores, dim=-1)
-
-            attention = torch.bmm(scores, values)            
-            attention_heads.append(torch.cat(torch.chunk(attention, self._n_chunk, dim=0), dim=1))
+        if mask == "subsequent":
+            scores = scores.masked_fill(self._scores_mask, float('-inf'))
         
+        scores = F.softmax(scores, dim=-1)
+
+        attention = torch.bmm(scores, values)
+
         # Concatenat the heads
-        attention_heads = torch.cat(attention_heads, dim=-1)
+        attention_heads = torch.cat(torch.cat(attention.chunk(self._n_chunk, dim=0), dim=1).chunk(self._h, dim=0), dim=-1)
         
         # Apply linear transformation W^O
         self_attention = self._W_o(attention_heads)
