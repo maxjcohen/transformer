@@ -60,7 +60,7 @@ class Decoder(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding
-        x.add_(self._PE)
+        # x.add_(self._PE)
 
         # Self attention
         residual = x
