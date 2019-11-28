@@ -65,15 +65,16 @@ class MultiHeadAttention(nn.Module):
             values = W_v(value)
 
             # Scaled Dot Product
-            scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K), dim=-1)
+            scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
             # Mask scores
             if mask == "subsequent":
-                scores_mask = torch.triu(torch.ones((scores[0].shape)), diagonal=1).bool()
-                scores.masked_fill(scores_mask, float('-inf'))
+                scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
+                scores = scores.masked_fill(scores_mask, float('-inf'))
+
+            scores = F.softmax(scores, dim=-1)
             
             attention = torch.bmm(scores, values)
-            
             attention_heads.append(attention)
         
         # Concatenat the heads
@@ -149,15 +150,16 @@ class MultiHeadAttentionChunk(nn.Module):
             values = torch.cat(torch.chunk(W_v(value), self._n_chunk, dim=1), dim=0)
 
             # Scaled Dot Product
-            scores = F.softmax(torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K), dim=-1)
+            scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
             # Mask scores
             if mask == "subsequent":
-                scores_mask = torch.triu(torch.ones((scores[0].shape)), diagonal=1).bool()
-                scores.masked_fill(scores_mask, float('-inf'))
-            
-            attention = torch.bmm(scores, values)
-            
+                scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
+                scores = scores.masked_fill(scores_mask, float('-inf'))
+
+            scores = F.softmax(scores, dim=-1)
+
+            attention = torch.bmm(scores, values)            
             attention_heads.append(torch.cat(torch.chunk(attention, self._n_chunk, dim=0), dim=1))
         
         # Concatenat the heads
