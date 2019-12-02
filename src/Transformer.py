@@ -73,5 +73,5 @@ class Transformer(nn.Module):
         
         # Output module
         output = self._linear(decoding)
-        # output = torch.sigmoid(output)
+        output = torch.sigmoid(output)
         return output

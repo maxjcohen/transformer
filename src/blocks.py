@@ -10,6 +10,12 @@ class MultiHeadAttention(nn.Module):
     to compute query, keys and values, we output a self attention
     tensor of shape (batch_size, K, d_model).
 
+    Attributes
+    ----------
+    attention_map: :class:`torch.Tensor`
+        Attention map after a forward propagation,
+        variable `score` in the original paper.
+
     Parameters
     ----------
     d_model: :py:class:`int`
@@ -41,6 +47,9 @@ class MultiHeadAttention(nn.Module):
         # Score mask for decoder
         self._scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
 
+        # Score placeholder
+        self._scores = None
+
     def forward(self, query, key, value, mask=None):
         """Propagate forward the input through the MHB.
 
@@ -71,15 +80,15 @@ class MultiHeadAttention(nn.Module):
         values = torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0)
 
         # Scaled Dot Product
-        scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
         # Mask scores
         if mask == "subsequent":
-            scores = scores.masked_fill(self._scores_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
 
-        scores = F.softmax(scores, dim=-1)
-        
-        attention = torch.bmm(scores, values)
+        self._scores = F.softmax(self._scores, dim=-1)
+
+        attention = torch.bmm(self._scores, values)
         
         # Concatenat the heads
         attention_heads = torch.cat(attention.chunk(self._h, dim=0), dim=-1)
@@ -88,6 +97,12 @@ class MultiHeadAttention(nn.Module):
         self_attention = self._W_o(attention_heads)
         
         return self_attention
+
+    @property
+    def attention_map(self):
+        if self._scores is None:
+            raise RuntimeError("Evaluate the model once to generate attention map")
+        return self._scores
 
 class MultiHeadAttentionChunk(MultiHeadAttention):
     """Multi Head Attention block with chunk.

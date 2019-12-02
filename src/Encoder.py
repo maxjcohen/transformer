@@ -12,6 +12,12 @@ class Encoder(nn.Module):
     Apply Multi Head Attention block followed by a Point-wise Feed Forward block.
     Residual sum and normalization are applied at each step.
 
+    Attributes
+    ----------
+    attention_map: :class:`torch.Tensor`
+        Attention map after a forward propagation,
+        variable `score` in the original paper.
+
     Parameters
     ----------
     d_model: :py:class:`int`
@@ -77,3 +83,7 @@ class Encoder(nn.Module):
         x = self._layerNorm2(x)
         
         return x
+
+    @property
+    def attention_map(self):
+        return self._selfAttention.attention_map
