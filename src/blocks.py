@@ -1,7 +1,10 @@
+from typing import Optional
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 
 class MultiHeadAttention(nn.Module):
     """Multi Head Attention block from Attention is All You Need.
@@ -10,47 +13,52 @@ class MultiHeadAttention(nn.Module):
     to compute query, keys and values, we output a self attention
     tensor of shape (batch_size, K, d_model).
 
-    Attributes
-    ----------
-    attention_map: :class:`torch.Tensor`
-        Attention map after a forward propagation,
-        variable `score` in the original paper.
-
     Parameters
     ----------
-    d_model: :py:class:`int`
+    d_model:
         Dimension of the input vector.
-    q: :py:class:`int`
+    q:
         Dimension of all query matrix.
-    v: :py:class:`int`
+    v:
         Dimension of all value matrix.
-    h: :py:class:`int`
+    h:
         Number of heads.
-    k: :py:class:`int`
+    k:
         Time window length.
     """
-    def __init__(self, d_model, q, v, h, k):
+
+    def __init__(self,
+                 d_model: int,
+                 q: int,
+                 v: int,
+                 h: int,
+                 k: int):
         """Initialize the Multi Head Block."""
         super().__init__()
 
         self._K = k
         self._h = h
-        
+
         # Query, keys and value matrices
         self._W_q = nn.Linear(d_model, q*self._h)
         self._W_k = nn.Linear(d_model, q*self._h)
         self._W_v = nn.Linear(d_model, v*self._h)
-        
+
         # Output linear function
         self._W_o = nn.Linear(self._h*v, d_model)
-        
+
         # Score mask for decoder
-        self._scores_mask = torch.triu(torch.ones((self._K, self._K)), diagonal=1).bool()
+        self._scores_mask = torch.triu(torch.ones(
+            (self._K, self._K)), diagonal=1).bool()
 
         # Score placeholder
         self._scores = None
 
-    def forward(self, query, key, value, mask=None):
+    def forward(self,
+                query: torch.Tensor,
+                key: torch.Tensor,
+                value: torch.Tensor,
+                mask: Optional[str] = None) -> torch.Tensor:
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
@@ -59,19 +67,18 @@ class MultiHeadAttention(nn.Module):
 
         Parameters
         ----------
-        query: :class:`torch.Tensor`
+        query:
             Input tensor with shape (batch_size, K, d_model) used to compute queries.
-        key: :class:`torch.Tensor`
+        key:
             Input tensor with shape (batch_size, K, d_model) used to compute keys.
-        value: :class:`torch.Tensor`
+        value:
             Input tensor with shape (batch_size, K, d_model) used to compute values.
-        mask: :py:class:`str`, optional
+        mask:
             Mask to apply on scores before computing attention.
             One of "subsequent", None. Default is None.
 
         Returns
         -------
-        self_attention: :class:`torch.Tensor`
             Self attention tensor with shape (batch_size, K, d_model).
         """
         # Compute Q, K and V, concatenate heads on batch dimension
@@ -89,20 +96,25 @@ class MultiHeadAttention(nn.Module):
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
-        
+
         # Concatenat the heads
         attention_heads = torch.cat(attention.chunk(self._h, dim=0), dim=-1)
-        
+
         # Apply linear transformation W^O
         self_attention = self._W_o(attention_heads)
-        
+
         return self_attention
 
     @property
-    def attention_map(self):
+    def attention_map(self) -> torch.Tensor:
+        """Attention map after a forward propagation,
+        variable `score` in the original paper.
+        """
         if self._scores is None:
-            raise RuntimeError("Evaluate the model once to generate attention map")
+            raise RuntimeError(
+                "Evaluate the model once to generate attention map")
         return self._scores
+
 
 class MultiHeadAttentionChunk(MultiHeadAttention):
     """Multi Head Attention block with chunk.
@@ -114,18 +126,25 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
     Parameters
     ----------
-    d_model: :py:class:`int`
+    d_model:
         Dimension of the input vector.
-    q: :py:class:`int`
+    q:
         Dimension of all query matrix.
-    v: :py:class:`int`
+    v:
         Dimension of all value matrix.
-    h: :py:class:`int`
+    h:
         Number of heads.
-    k: :py:class:`int`
+    k:
         Time window length.
     """
-    def __init__(self, d_model, q, v, h, k, **kwargs):
+
+    def __init__(self,
+                 d_model: int,
+                 q: int,
+                 v: int,
+                 h: int,
+                 k: int,
+                 **kwargs):
         """Initialize the Multi Head Block."""
         super().__init__(d_model, q, v, h, k, **kwargs)
 
@@ -133,8 +152,12 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         
         # Score mask for decoder
         self._scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
-        
-    def forward(self, query, key, value, mask=None):
+
+    def forward(self,
+                query: torch.Tensor,
+                key: torch.Tensor,
+                value: torch.Tensor,
+                mask: Optional[str] = None) -> torch.Tensor:
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
@@ -143,19 +166,18 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
         Parameters
         ----------
-        query: :class:`torch.Tensor`
+        query:
             Input tensor with shape (batch_size, K, d_model) used to compute queries.
-        key: :class:`torch.Tensor`
+        key:
             Input tensor with shape (batch_size, K, d_model) used to compute keys.
-        value: :class:`torch.Tensor`
+        value:
             Input tensor with shape (batch_size, K, d_model) used to compute values.
-        mask: :py:class:`str`, optional
+        mask:
             Mask to apply on scores before computing attention.
             One of "subsequent", None. Default is None.
 
         Returns
         -------
-        self_attention: :class:`torch.Tensor`
             Self attention tensor with shape (batch_size, K, d_model).
         """
         # Compute Q, K and V, concatenate heads on batch dimension
@@ -168,18 +190,19 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
         if mask == "subsequent":
             scores = scores.masked_fill(self._scores_mask, float('-inf'))
-        
+
         scores = F.softmax(scores, dim=-1)
 
         attention = torch.bmm(scores, values)
 
         # Concatenat the heads
         attention_heads = torch.cat(torch.cat(attention.chunk(self._n_chunk, dim=0), dim=1).chunk(self._h, dim=0), dim=-1)
-        
+
         # Apply linear transformation W^O
         self_attention = self._W_o(attention_heads)
-        
+
         return self_attention
+
 
 class PositionwiseFeedForward(nn.Module):
     """Position-wise Feed Forward Network block from Attention is All You Need.
@@ -189,19 +212,22 @@ class PositionwiseFeedForward(nn.Module):
 
     Parameters
     ----------
-    d_model: :py:class:`int`
+    d_model:
         Dimension of input tensor.
-    d_dd: :py:class:`int`, optional
+    d_ff:
         Dimension of hidden layer, default is 2048.
     """
-    def __init__(self, d_model, d_ff=2048):
+
+    def __init__(self,
+                 d_model: int,
+                 d_ff: Optional[int] = 2048):
         """Initialize the PFF block."""
         super().__init__()
-        
+
         self._linear1 = nn.Linear(d_model, d_ff)
         self._linear2 = nn.Linear(d_ff, d_model)
-        
-    def forward(self, x):
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate forward the input through the PFF block.
 
         Apply the first linear transformation, then a relu actvation,
@@ -209,12 +235,11 @@ class PositionwiseFeedForward(nn.Module):
 
         Parameters
         ----------
-        x: :class:`torch.Tensor`
+        x:
             Input tensor with shape (batch_size, K, d_model).
 
         Returns
         -------
-        x: :class:`torch.Tensor`
             Output tensor with shape (batch_size, K, d_model).
         """
         return self._linear2(F.relu(self._linear1(x)))

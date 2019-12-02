@@ -1,18 +1,18 @@
 import torch
 
-def generate_positional_encoding(length, d_model):
-    """Generate positional encoding as described in original paper.
+def generate_positional_encoding(length: int, d_model: int) -> torch.Tensor:
+    """Generate positional encoding as described in original paper.  :class:`torch.Tensor`
 
     Parameters
     ----------
-    length: :py:class:`int`
+    length:
         Time window length, i.e. K.
-    d_model: :py:class:`int`
+    d_model:
         Dimension of the model vector.
+
 
     Returns
     -------
-    PE: :class:`torch.Tensor`
         Tensor of shape (K, d_model).
     """
     PE = torch.zeros((length, d_model))

@@ -6,35 +6,37 @@ import torch.nn.functional as F
 from src.blocks import MultiHeadAttention, MultiHeadAttentionChunk, PositionwiseFeedForward
 from src.utils import generate_positional_encoding
 
+
 class Encoder(nn.Module):
     """Encoder block from Attention is All You Need.
 
     Apply Multi Head Attention block followed by a Point-wise Feed Forward block.
     Residual sum and normalization are applied at each step.
 
-    Attributes
-    ----------
-    attention_map: :class:`torch.Tensor`
-        Attention map after a forward propagation,
-        variable `score` in the original paper.
-
     Parameters
     ----------
-    d_model: :py:class:`int`
+    d_model:
         Dimension of the input vector.
-    q: :py:class:`int`
+    q:
         Dimension of all query matrix.
-    v: :py:class:`int`
+    v:
         Dimension of all value matrix.
-    h: :py:class:`int`
+    h:
         Number of heads.
-    k: :py:class:`int`
+    k:
         Time window length.
-    time_chunk: :py:class:`bool`
+    time_chunk:
         If True, will divide time dimension in chunks.
         Default True.
     """
-    def __init__(self, d_model, q, v, h, k, time_chunk=True):
+
+    def __init__(self,
+                 d_model: int,
+                 q: int,
+                 v: int,
+                 h: int,
+                 k: int,
+                 time_chunk: bool = True):
         """Initialize the Encoder block"""
         super().__init__()
 
@@ -42,16 +44,16 @@ class Encoder(nn.Module):
             from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention
         else:
             from src.blocks import MultiHeadAttention
-        
+
         self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._feedForward = PositionwiseFeedForward(d_model)
-        
+
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
 
         self._PE = generate_positional_encoding(k, d_model)
-        
-    def forward(self, x):
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Encoder block.
 
         Apply the Multi Head Attention block, add residual and normalize.
@@ -59,12 +61,11 @@ class Encoder(nn.Module):
 
         Parameters
         ----------
-        x: :class:`torch.Tensor`
+        x:
             Input tensor with shape (batch_size, K, d_model).
-        
+
         Returns
         -------
-        x: :class:`torch.Tensor`
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding
@@ -75,15 +76,18 @@ class Encoder(nn.Module):
         x = self._selfAttention(query=x, key=x, value=x)
         x.add_(residual)
         x = self._layerNorm1(x)
-        
+
         # Feed forward
         redisual = x
         x = self._feedForward(x)
         x.add_(residual)
         x = self._layerNorm2(x)
-        
+
         return x
 
     @property
-    def attention_map(self):
+    def attention_map(self) -> torch.Tensor:
+        """Attention map after a forward propagation,
+        variable `score` in the original paper.
+        """
         return self._selfAttention.attention_map

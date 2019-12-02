@@ -1,8 +1,10 @@
 import json
+from typing import Optional
 
 import numpy as np
 from torch.utils.data import Dataset
 import torch
+
 
 class OzeDataset(Dataset):
     """Torch dataset for Oze datachallenge.
@@ -20,24 +22,27 @@ class OzeDataset(Dataset):
 
     Parameters
     ---------
-    dataset_x: :py:class:`str` or :class:`pathlib.Path`
+    dataset_path:
         Path to the dataset inputs as npz.
-    labels_path: :py:class:`str` or :class:`pathlib.Path`, optional
+    labels_path:
         Path to the labels, divided in R, Z and X, in json format.
         Default is "labels.json".
-    normalize: :py:class:`str`, optional
+    normalize:
         Data normalization method, one of "mean", "max".
         Default is "max".
     """
 
-    def __init__(self, dataset_path, labels_path="labels.json", normalize="max", **kwargs):
+    def __init__(self,
+                 dataset_path: str,
+                 labels_path: Optional[str] = "labels.json",
+                 normalize: Optional[str] = "max",
+                 **kwargs):
         """Load dataset from npz."""
         super().__init__(**kwargs)
 
         self._load_npz(dataset_path, labels_path, normalize)
 
     def _load_npz(self, dataset_path, labels_path, normalize):
-        """Load dataset from csv and create x_train and y_train tensors."""
         # Load dataset as csv
         dataset = np.load(dataset_path)
 
@@ -45,7 +50,10 @@ class OzeDataset(Dataset):
         with open(labels_path, "r") as stream_json:
             self.labels = json.load(stream_json)
 
-        R, X, Z = dataset['R'].astype(np.float32), dataset['X'].astype(np.float32), dataset['Z'].astype(np.float32)
+        R = dataset['R'].astype(np.float32)
+        X = dataset['X'].astype(np.float32)
+        Z = dataset['Z'].astype(np.float32)
+
         m = Z.shape[0]  # Number of training example
         K = Z.shape[-1]  # Time serie length
 
@@ -74,7 +82,7 @@ class OzeDataset(Dataset):
             self.M = np.max(self._y, axis=(0, 1))
             self.m = np.min(self._y, axis=(0, 1))
             self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
-                
+
         # Convert to float32
         self._x = torch.Tensor(self._x)
         self._y = torch.Tensor(self._y)
@@ -87,6 +95,7 @@ class OzeDataset(Dataset):
 
     def __len__(self):
         return self._x.shape[0]
+
 
 class OzeDatasetWindow(OzeDataset):
     """Torch dataset with windowed time dimension.
@@ -102,23 +111,28 @@ class OzeDatasetWindow(OzeDataset):
     M: :class:`numpy.ndarray`
         Normalization constant.
 
-    
+
     Parameters
     ---------
-    dataset_x: :py:class:`str` or :class:`pathlib.Path`
+    dataset_x:
         Path to the dataset inputs as npz.
-    labels_path: :py:class:`str` or :class:`pathlib.Path`, optional
+    labels_path:
         Path to the labels, divided in R, Z and X, in json format.
         Default is "labels.json".
-    window_size: :py:class:`int`, optional
+    window_size:
         Size of the window to apply on time dimension.
         Default 5.
-    padding: :py:class:`int`, optional
+    padding:
         Padding size to apply on time dimension windowing.
         Default 1.
     """
 
-    def __init__(self, dataset_path, labels_path="labels.json", window_size=5, padding=1, **kwargs):
+    def __init__(self,
+                 dataset_path: str,
+                 labels_path: Optional[str] = "labels.json",
+                 window_size: Optional[int] = 5,
+                 padding: Optional[int] = 1,
+                 **kwargs):
         """Load dataset from npz."""
         super().__init__(dataset_path, labels_path, **kwargs)
 
@@ -137,6 +151,6 @@ class OzeDatasetWindow(OzeDataset):
         for idx_step, idx in enumerate(range(0, K-window_size, step)):
             dataset_x[:, idx_step, :, :] = self._x[:, idx:idx+window_size, :]
             dataset_y[:, idx_step, :, :] = self._y[:, idx+padding:idx+window_size-padding, :]
-            
+
         self._x = dataset_x
         self._y = dataset_y

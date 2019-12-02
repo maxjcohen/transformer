@@ -34,11 +34,14 @@ release = '0.0.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.intersphinx',
 ]
 
 napoleon_google_docstring = False
-napoleon_use_param = False
+napoleon_numpy_docstring = True
+napoleon_use_param = True
+napoleon_use_rtype = False
 napoleon_use_ivar = True
 
 intersphinx_mapping = {

@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from src.blocks import MultiHeadAttention, MultiHeadAttentionChunk, PositionwiseFeedForward
 from src.utils import generate_positional_encoding
 
+
 class Decoder(nn.Module):
     """Decoder block from Attention is All You Need.
 
@@ -14,21 +15,28 @@ class Decoder(nn.Module):
 
     Parameters
     ----------
-    d_model: :py:class:`int`
+    d_model: 
         Dimension of the input vector.
-    q: :py:class:`int`
+    q:
         Dimension of all query matrix.
-    v: :py:class:`int`
+    v:
         Dimension of all value matrix.
-    h: :py:class:`int`
+    h:
         Number of heads.
-    k: :py:class:`int`
+    k:
         Time window length.
-    time_chunk: :py:class:`bool`
+    time_chunk:
         If True, will divide time dimension in chunks.
         Default True.
     """
-    def __init__(self, d_model, q, v, h, k, time_chunk=True):
+
+    def __init__(self,
+                 d_model: int,
+                 q: int,
+                 v: int,
+                 h: int,
+                 k: int,
+                 time_chunk: bool = True):
         """Initialize the Decoder block"""
         super().__init__()
 
@@ -36,18 +44,18 @@ class Decoder(nn.Module):
             from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention
         else:
             from src.blocks import MultiHeadAttention
-        
+
         self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._encoderDecoderAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._feedForward = PositionwiseFeedForward(d_model)
-        
+
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
         self._layerNorm3 = nn.LayerNorm(d_model)
 
         self._PE = generate_positional_encoding(k, d_model)
-        
-    def forward(self, x, memory):
+
+    def forward(self, x: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Decoder block.
 
         Apply the self attention block, add residual and normalize.
@@ -56,15 +64,15 @@ class Decoder(nn.Module):
 
         Parameters
         ----------
-        x: :class:`torch.Tensor`
+        x:
             Input tensor with shape (batch_size, K, d_model).
-        memory: :class:`torch.Tensor`
+        memory:
             Memory tensor with shape (batch_size, K, d_model)
             from encoder output.
-        
+
         Returns
         -------
-        x: :class:`torch.Tensor`
+        x:
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding
@@ -81,11 +89,11 @@ class Decoder(nn.Module):
         x = self._selfAttention(query=x, key=memory, value=memory)
         x.add_(residual)
         x = self._layerNorm2(x)
-        
+
         # Feed forward
         redisual = x
         x = self._feedForward(x)
         x.add_(residual)
         x = self._layerNorm3(x)
-        
+
         return x
