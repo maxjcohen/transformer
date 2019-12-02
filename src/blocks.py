@@ -148,8 +148,8 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         """Initialize the Multi Head Block."""
         super().__init__(d_model, q, v, h, k, **kwargs)
 
-        self._n_chunk = self._K // 24
-        
+        self._n_chunk = self._K // 168
+
         # Score mask for decoder
         self._scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
 
@@ -186,14 +186,14 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
 
         # Scaled Dot Product
-        scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
 
         if mask == "subsequent":
-            scores = scores.masked_fill(self._scores_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
 
-        scores = F.softmax(scores, dim=-1)
+        self._scores = F.softmax(self._scores, dim=-1)
 
-        attention = torch.bmm(scores, values)
+        attention = torch.bmm(self._scores, values)
 
         # Concatenat the heads
         attention_heads = torch.cat(torch.cat(attention.chunk(self._n_chunk, dim=0), dim=1).chunk(self._h, dim=0), dim=-1)

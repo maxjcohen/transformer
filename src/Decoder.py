@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from src.blocks import MultiHeadAttention, MultiHeadAttentionChunk, PositionwiseFeedForward
-from src.utils import generate_positional_encoding
+from src.utils import generate_original_PE, generate_regular_PE
 
 
 class Decoder(nn.Module):
@@ -53,7 +53,7 @@ class Decoder(nn.Module):
         self._layerNorm2 = nn.LayerNorm(d_model)
         self._layerNorm3 = nn.LayerNorm(d_model)
 
-        self._PE = generate_positional_encoding(k, d_model)
+        self._PE = generate_regular_PE(k, d_model)
 
     def forward(self, x: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Decoder block.
@@ -76,7 +76,7 @@ class Decoder(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding
-        # x.add_(self._PE)
+        x.add_(self._PE)
 
         # Self attention
         residual = x
