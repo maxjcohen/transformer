@@ -12,8 +12,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../src/'))
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../src/'))
 
 
 # -- Project information -----------------------------------------------------
@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'sphinx.ext.intersphinx',
+    'nbsphinx',
 ]
 
 napoleon_google_docstring = False
