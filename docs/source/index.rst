@@ -1,8 +1,25 @@
 Transformer for metamodels
-==========================
+**************************
+
+Modules
+=======
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
 
-.. include:: modules.rst
+   Transformer
+   LSTM
+   Decoder
+   Encoder
+   blocks
+   dataset
+   utils
+
+Notebooks
+=========
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   trainings.rst
