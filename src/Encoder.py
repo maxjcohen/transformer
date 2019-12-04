@@ -65,7 +65,6 @@ class Encoder(nn.Module):
         if pe in pe_functions.keys():
             self._PE = pe_functions[pe](k, d_model)
         elif pe is None:
-            print("None")
             self._PE = None
         else:
             raise NameError(
