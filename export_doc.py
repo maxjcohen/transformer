@@ -3,6 +3,7 @@ import datetime
 from pathlib import Path
 import argparse
 
+
 def export_notebook(notebook_path: Path, export_dir: Path):
     # Load notebook
     with open(notebook_path, "r") as stream_json:
@@ -23,6 +24,7 @@ def export_notebook(notebook_path: Path, export_dir: Path):
     with open(export_path, "w") as stream_json:
         json.dump(notebook, stream_json)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Export notebook to docs.')
 
@@ -30,8 +32,8 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output-dir', )
 
     args = parser.parse_args()
-    
+
     notebook_path = Path(args.notebook)
-    export_path = Path(args.output_dir) or Path("docs/source/notebooks/")
+    export_path = Path(args.output_dir or "docs/source/notebooks/")
 
     export_notebook(notebook_path, export_path)
