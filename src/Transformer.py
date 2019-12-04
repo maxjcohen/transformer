@@ -42,6 +42,9 @@ class Transformer(nn.Module):
     time_chunk:
         If True, will divide time dimension in chunks.
         Default True.
+    pe:
+        Type of positional encoding to add.
+        Must be one of original, regular or None. Default is None.
     """
 
     def __init__(self,
@@ -53,14 +56,15 @@ class Transformer(nn.Module):
                  h: int,
                  k: int,
                  N: int,
-                 time_chunk: Optional[bool] = True):
+                 time_chunk: Optional[bool] = True,
+                 pe: Optional[str] = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
         self.layers_encoding = [
-            Encoder(d_model, q, v, h, k, time_chunk) for _ in range(N)]
+            Encoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)]
         self.layers_decoding = [
-            Decoder(d_model, q, v, h, k, time_chunk) for _ in range(N)]
+            Decoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)]
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)

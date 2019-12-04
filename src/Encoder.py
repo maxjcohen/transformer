@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -28,6 +30,9 @@ class Encoder(nn.Module):
     time_chunk:
         If True, will divide time dimension in chunks.
         Default True.
+    pe:
+        Type of positional encoding to add.
+        Must be one of original, regular or None. Default is None.
     """
 
     def __init__(self,
@@ -36,7 +41,8 @@ class Encoder(nn.Module):
                  v: int,
                  h: int,
                  k: int,
-                 time_chunk: bool = True):
+                 time_chunk: Optional[bool] = True,
+                 pe: Optional[str] = None):
         """Initialize the Encoder block"""
         super().__init__()
 
@@ -51,7 +57,19 @@ class Encoder(nn.Module):
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
 
-        self._PE = generate_regular_PE(k, d_model)
+        pe_functions = {
+            'original': generate_original_PE,
+            'regular': generate_regular_PE,
+        }
+
+        if pe in pe_functions.keys():
+            self._PE = pe_functions[pe](k, d_model)
+        elif pe is None:
+            print("None")
+            self._PE = None
+        else:
+            raise NameError(
+                f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Encoder block.
@@ -69,7 +87,8 @@ class Encoder(nn.Module):
             Output tensor with shape (batch_size, K, d_model).
         """
         # Add position encoding
-        x.add_(self._PE)
+        if self._PE is not None:
+            x.add_(self._PE)
 
         # Self attention
         residual = x
