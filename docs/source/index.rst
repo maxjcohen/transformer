@@ -19,7 +19,6 @@ Notebooks
 =========
 
 .. toctree::
-   :maxdepth: 1
-   :titlesonly:
+   :maxdepth: 2
 
    trainings.rst
