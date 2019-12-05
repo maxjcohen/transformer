@@ -37,6 +37,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx.ext.intersphinx',
     'nbsphinx',
+    'recommonmark',
 ]
 
 napoleon_google_docstring = False
