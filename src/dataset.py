@@ -15,10 +15,6 @@ class OzeDataset(Dataset):
     ----------
     labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
-    m: :class:`numpy.ndarray`
-        Normalization constant.
-    M: :class:`numpy.ndarray`
-        Normalization constant.
 
     Parameters
     ---------
@@ -40,9 +36,11 @@ class OzeDataset(Dataset):
         """Load dataset from npz."""
         super().__init__(**kwargs)
 
-        self._load_npz(dataset_path, labels_path, normalize)
+        self._normalize = normalize
 
-    def _load_npz(self, dataset_path, labels_path, normalize):
+        self._load_npz(dataset_path, labels_path)
+
+    def _load_npz(self, dataset_path, labels_path):
         # Load dataset as csv
         dataset = np.load(dataset_path)
 
@@ -66,26 +64,49 @@ class OzeDataset(Dataset):
         self._y = X
 
         # Normalize
-        if normalize == "mean":
+        if self._normalize == "mean":
             mean = np.mean(self._x, axis=(0, 1))
             std = np.std(self._x, axis=(0, 1))
             self._x = (self._x - mean) / (std + np.finfo(float).eps)
 
-            self.mean = np.mean(self._y, axis=(0, 1))
-            self.std = np.std(self._y, axis=(0, 1))
-            self._y = (self._y - self.mean) / (self.std + np.finfo(float).eps)
-        elif normalize == "max":
+            self._mean = np.mean(self._y, axis=(0, 1))
+            self._std = np.std(self._y, axis=(0, 1))
+            self._y = (self._y - self._mean) / (self._std + np.finfo(float).eps)
+        elif self._normalize == "max":
             M = np.max(self._x, axis=(0, 1))
             m = np.min(self._x, axis=(0, 1))
             self._x = (self._x - m) / (M - m + np.finfo(float).eps)
 
-            self.M = np.max(self._y, axis=(0, 1))
-            self.m = np.min(self._y, axis=(0, 1))
-            self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
+            self._M = np.max(self._y, axis=(0, 1))
+            self._m = np.min(self._y, axis=(0, 1))
+            self._y = (self._y - self._m) / (self._M - self._m + np.finfo(float).eps)
+        else:
+            raise(
+                NameError(f'Normalize method "{self._normalize}" not understood.'))
 
         # Convert to float32
         self._x = torch.Tensor(self._x)
         self._y = torch.Tensor(self._y)
+
+    def rescale(self,
+                y: np.ndarray,
+                idx_label: int) -> torch.Tensor:
+        """Rescale output from initial normalization.
+
+        Arguments
+        ---------
+        y:
+            Array to resize, of shape (K,).
+        idx_label:
+            Index of the output label.
+        """
+        if self._normalize == "max":
+            return y * (self._M[idx_label] - self._m[idx_label] + np.finfo(float).eps) + self._m[idx_label]
+        elif self._normalize == "mean":
+            return y * (self._std[idx_label] + np.finfo(float).eps) + self._mean[idx_label]
+        else:
+            raise(
+                NameError(f'Normalize method "{self._normalize}" not understood.'))
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -106,11 +127,6 @@ class OzeDatasetWindow(OzeDataset):
     ----------
     labels: :py:class:`dict`
         Ordered labels list for R, Z and X.
-    m: :class:`numpy.ndarray`
-        Normalization constant.
-    M: :class:`numpy.ndarray`
-        Normalization constant.
-
 
     Parameters
     ---------
@@ -145,12 +161,14 @@ class OzeDatasetWindow(OzeDataset):
         step = window_size - 2 * padding
         n_step = (K - window_size - 1) // step + 1
 
-        dataset_x = np.empty((m, n_step, window_size, d_input), dtype=np.float32)
+        dataset_x = np.empty(
+            (m, n_step, window_size, d_input), dtype=np.float32)
         dataset_y = np.empty((m, n_step, step, d_output), dtype=np.float32)
 
         for idx_step, idx in enumerate(range(0, K-window_size, step)):
             dataset_x[:, idx_step, :, :] = self._x[:, idx:idx+window_size, :]
-            dataset_y[:, idx_step, :, :] = self._y[:, idx+padding:idx+window_size-padding, :]
+            dataset_y[:, idx_step, :, :] = self._y[:,
+                                                   idx+padding:idx+window_size-padding, :]
 
         self._x = dataset_x
         self._y = dataset_y
