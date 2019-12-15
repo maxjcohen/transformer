@@ -61,10 +61,8 @@ class Transformer(nn.Module):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
-        self.layers_encoding = [
-            Encoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)]
-        self.layers_decoding = [
-            Decoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)]
+        self.layers_encoding = nn.ModuleList([Encoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)])
+        self.layers_decoding = nn.ModuleList([Decoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)])
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
@@ -92,11 +90,11 @@ class Transformer(nn.Module):
             encoding = layer(encoding)
 
         # Decoding stack
-        decoding = encoding
-        for layer in self.layers_decoding:
-            decoding = layer(decoding, encoding)
+        # decoding = encoding
+        # for layer in self.layers_decoding:
+        #     decoding = layer(decoding, encoding)
 
         # Output module
-        output = self._linear(decoding)
+        output = self._linear(encoding)
         output = torch.sigmoid(output)
         return output
