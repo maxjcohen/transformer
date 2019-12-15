@@ -5,7 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.blocks import MultiHeadAttention, MultiHeadAttentionChunk, PositionwiseFeedForward
+from src.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk
+from src.PositionwiseFeedForward import PositionwiseFeedForward
 from src.utils import generate_original_PE, generate_regular_PE
 
 
@@ -47,9 +48,9 @@ class Decoder(nn.Module):
         super().__init__()
 
         if time_chunk:
-            from src.blocks import MultiHeadAttentionChunk as MultiHeadAttention
+            from src.MultiHeadAttention import MultiHeadAttentionChunk as MultiHeadAttention
         else:
-            from src.blocks import MultiHeadAttention
+            from src.MultiHeadAttention import MultiHeadAttention
 
         self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
         self._encoderDecoderAttention = MultiHeadAttention(d_model, q, v, h, k)

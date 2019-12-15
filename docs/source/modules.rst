@@ -5,9 +5,10 @@ Modules
    :maxdepth: 4
 
    Transformer
-   LSTM
-   Decoder
    Encoder
-   blocks
+   Decoder
+   MultiHeadAttention
+   PositionwiseFeedForward
    dataset
+   Benchmark
    utils
