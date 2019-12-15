@@ -90,11 +90,11 @@ class Transformer(nn.Module):
             encoding = layer(encoding)
 
         # Decoding stack
-        # decoding = encoding
-        # for layer in self.layers_decoding:
-        #     decoding = layer(decoding, encoding)
+        decoding = encoding
+        for layer in self.layers_decoding:
+            decoding = layer(decoding, encoding)
 
         # Output module
-        output = self._linear(encoding)
+        output = self._linear(decoding)
         output = torch.sigmoid(output)
         return output
