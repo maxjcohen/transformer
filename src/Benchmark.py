@@ -1,10 +1,8 @@
-# coding: UTF-8
-
 import torch
 import torch.nn as nn
 
 
-class LSTMBenchmark(nn.Module):
+class LSTM(nn.Module):
     """Benchmark LSTM.
 
     Parameters
