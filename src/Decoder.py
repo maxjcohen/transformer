@@ -109,7 +109,7 @@ class Decoder(nn.Module):
         x = self._layerNorm2(x)
 
         # Feed forward
-        redisual = x
+        residual = x
         x = self._feedForward(x)
         x.add_(residual)
         x = self._layerNorm3(x)

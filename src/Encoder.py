@@ -96,7 +96,7 @@ class Encoder(nn.Module):
         x = self._layerNorm1(x)
 
         # Feed forward
-        redisual = x
+        residual = x
         x = self._feedForward(x)
         x.add_(residual)
         x = self._layerNorm2(x)
