@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/maxjcohen/transformer/demo?filepath=demo_LSTM.ipynb)
 
 Transformers for Time Series
 ============================
@@ -22,7 +22,7 @@ In order to perform well on time series, a few adjustements had to de made:
 - Replaced positional encoding with a "regular" version, to better match the input sequence day/night patterns.
 
 ## Installation
-All required packages can be found in `requirements.txt`, and expect to be run with `python3.7`. Note that you may have to install pytorch manually if you use Conda. Here are a few lines to get started with pip and virtualenv:
+All required packages can be found in `requirements.txt`, and expect to be run with `python3.7`. If you are not using Debian, pip and virtualenv, you may have to install pytorch manually: remove the last two lines from the `requirements.txt` file and head on [PyTorch website](https://pytorch.org/get-started/locally/).Here are a few lines to get started with pip and virtualenv:
 
 ```bash
 $ apt-get install python3.7
