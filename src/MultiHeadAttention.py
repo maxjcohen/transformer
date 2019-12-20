@@ -151,7 +151,8 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         self._n_chunk = self._K // 168
 
         # Score mask for decoder
-        self._scores_mask = torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool()
+        self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool(), requires_grad=False)
+
 
     def forward(self,
                 query: torch.Tensor,
