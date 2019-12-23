@@ -192,7 +192,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
 
         # Scaled Dot Product
-        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._chunk_size)
 
         if mask == "subsequent":
             self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
