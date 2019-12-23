@@ -41,10 +41,10 @@ class Transformer(nn.Module):
         Number of encoder and decoder layers to stack.
     chunk_mode:
         Swict between different MultiHeadAttention blocks.
-        One of "chunk", "window" or None, Default is 'chunk'.
+        One of ``'chunk'``, ``'window'`` or None, Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
-        Must be one of original, regular or None. Default is None.
+        Must be one of ``'original'``, ``'regular'`` or None. Default is None.
     """
 
     def __init__(self,

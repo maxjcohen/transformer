@@ -75,7 +75,7 @@ class MultiHeadAttention(nn.Module):
             Input tensor with shape (batch_size, K, d_model) used to compute values.
         mask:
             Mask to apply on scores before computing attention.
-            One of "subsequent", None. Default is None.
+            One of ``'subsequent'``, None. Default is None.
 
         Returns
         -------
@@ -180,7 +180,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
             Input tensor with shape (batch_size, K, d_model) used to compute values.
         mask:
             Mask to apply on scores before computing attention.
-            One of "subsequent", None. Default is None.
+            One of ``'subsequent'``, None. Default is None.
 
         Returns
         -------
@@ -282,7 +282,7 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
             Input tensor with shape (batch_size, K, d_model) used to compute values.
         mask:
             Mask to apply on scores before computing attention.
-            One of "subsequent", None. Default is None.
+            One of ``'subsequent'``, None. Default is None.
 
         Returns
         -------

@@ -24,8 +24,8 @@ class OzeDataset(Dataset):
         Path to the labels, divided in R, Z and X, in json format.
         Default is "labels.json".
     normalize:
-        Data normalization method, one of "mean", "max".
-        Default is "max".
+        Data normalization method, one of ``'mean'``, ``'max'``.
+        Default is ``'max'``.
     """
 
     def __init__(self,
