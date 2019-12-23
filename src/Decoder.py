@@ -1,11 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk
+from src.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
 from src.PositionwiseFeedForward import PositionwiseFeedForward
 from src.utils import generate_original_PE, generate_regular_PE
 
@@ -28,9 +28,9 @@ class Decoder(nn.Module):
         Number of heads.
     k:
         Time window length.
-    time_chunk:
-        If True, will divide time dimension in chunks.
-        Default True.
+    chunk_mode:
+        Swict between different MultiHeadAttention blocks.
+        One of "chunk", "window" or None, Default is 'chunk'.
     pe:
         Type of positional encoding to add.
         Must be one of original, regular or None. Default is None.
@@ -42,18 +42,26 @@ class Decoder(nn.Module):
                  v: int,
                  h: int,
                  k: int,
-                 time_chunk: Optional[bool] = True,
+                 chunk_mode: Union[str, None] = 'chunk',
                  pe: Optional[str] = None):
         """Initialize the Decoder block"""
         super().__init__()
 
-        if time_chunk:
-            from src.MultiHeadAttention import MultiHeadAttentionChunk as MultiHeadAttention
-        else:
-            from src.MultiHeadAttention import MultiHeadAttention
+        chunk_mode_modules = {
+            'chunk': MultiHeadAttentionChunk,
+            'window': MultiHeadAttentionWindow,
+        }
 
-        self._selfAttention = MultiHeadAttention(d_model, q, v, h, k)
-        self._encoderDecoderAttention = MultiHeadAttention(d_model, q, v, h, k)
+        if chunk_mode in chunk_mode_modules.keys():
+            MHA = chunk_mode_modules[chunk_mode]
+        elif chunk_mode is None:
+            MHA = MultiHeadAttention
+        else:
+            raise NameError(
+                f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
+
+        self._selfAttention = MHA(d_model, q, v, h, k)
+        self._encoderDecoderAttention = MHA(d_model, q, v, h, k)
         self._feedForward = PositionwiseFeedForward(d_model)
 
         self._layerNorm1 = nn.LayerNorm(d_model)

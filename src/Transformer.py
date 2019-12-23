@@ -39,9 +39,9 @@ class Transformer(nn.Module):
         Time length.
     N:
         Number of encoder and decoder layers to stack.
-    time_chunk:
-        If True, will divide time dimension in chunks.
-        Default True.
+    chunk_mode:
+        Swict between different MultiHeadAttention blocks.
+        One of "chunk", "window" or None, Default is 'chunk'.
     pe:
         Type of positional encoding to add.
         Must be one of original, regular or None. Default is None.
@@ -56,13 +56,13 @@ class Transformer(nn.Module):
                  h: int,
                  k: int,
                  N: int,
-                 time_chunk: Optional[bool] = True,
+                 chunk_mode: Optional[bool] = True,
                  pe: Optional[str] = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
-        self.layers_encoding = nn.ModuleList([Encoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)])
-        self.layers_decoding = nn.ModuleList([Decoder(d_model, q, v, h, k, time_chunk, pe=pe) for _ in range(N)])
+        self.layers_encoding = nn.ModuleList([Encoder(d_model, q, v, h, k, chunk_mode=chunk_mode, pe=pe) for _ in range(N)])
+        self.layers_decoding = nn.ModuleList([Decoder(d_model, q, v, h, k, chunk_mode=chunk_mode, pe=pe) for _ in range(N)])
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
