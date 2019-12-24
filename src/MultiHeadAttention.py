@@ -261,6 +261,14 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._window_size, self._window_size)), diagonal=1).bool(),
                                          requires_grad=False)
 
+        # Compute local map
+        alpha = 0.1
+        local_map = np.empty((self._window_size, self._window_size))
+        i, j = np.indices(local_map.shape)
+        local_map[i, j] = np.exp(-np.abs(i - j) * alpha) - 1
+        
+        self._local_map = nn.Parameter(torch.Tensor(local_map), requires_grad=False)
+
     def forward(self,
                 query: torch.Tensor,
                 key: torch.Tensor,
@@ -311,6 +319,7 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         if mask == "subsequent":
             self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
 
+        self._scores += self._local_map
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
