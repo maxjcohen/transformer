@@ -42,6 +42,7 @@ class Decoder(nn.Module):
                  v: int,
                  h: int,
                  k: int,
+                 dropout: float = 0.3,
                  chunk_mode: Union[str, None] = 'chunk',
                  pe: Optional[str] = None):
         """Initialize the Decoder block"""
@@ -67,6 +68,8 @@ class Decoder(nn.Module):
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
         self._layerNorm3 = nn.LayerNorm(d_model)
+
+        self._dopout = nn.Dropout(p=dropout)
 
         pe_functions = {
             'original': generate_original_PE,
@@ -108,18 +111,21 @@ class Decoder(nn.Module):
         # Self attention
         residual = x
         x = self._selfAttention(query=x, key=x, value=x, mask="subsequent")
+        x = self._dopout(x)
         x.add_(residual)
         x = self._layerNorm1(x)
 
         # Encoder-decoder attention
         residual = x
         x = self._selfAttention(query=x, key=memory, value=memory)
+        x = self._dopout(x)
         x.add_(residual)
         x = self._layerNorm2(x)
 
         # Feed forward
         residual = x
         x = self._feedForward(x)
+        x = self._dopout(x)
         x.add_(residual)
         x = self._layerNorm3(x)
 
