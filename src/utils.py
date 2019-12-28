@@ -108,3 +108,13 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
     t_amb = dataloader.dataset.rescale(t_amb, -1)
     plt.plot(t_amb, label="TAMB", c="red")
     plt.legend()
+
+
+def compute_loss(net, dataloader, loss_function, device='cpu'):
+    running_loss = 0
+    with torch.no_grad():
+        for x, y in dataloader:
+            netout = net(x.to(device)).cpu()
+            running_loss += loss_function(y, netout)
+
+    return running_loss / len(dataloader)
