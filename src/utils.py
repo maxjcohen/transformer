@@ -80,7 +80,7 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
         netout = net(torch.Tensor(x[np.newaxis, ...]).to(device)).cpu()
 
     plt.figure(figsize=(30, 30))
-    for idx_label, label in enumerate(dataloader.dataset.labels['X']):
+    for idx_label, label in enumerate(dataloader.dataset.dataset.labels['X']):
         # Select real temperature
         y_true = y[:, idx_label]
         y_pred = netout[0, :, idx_label].numpy()
@@ -93,8 +93,8 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
             plt.ylim(-0.1, 1.1)
         # If temperature, rescale output
         elif label == 'T_INT_OFFICE':
-            y_true = dataloader.dataset.rescale(y_true, idx_label)
-            y_pred = dataloader.dataset.rescale(y_pred, idx_label)
+            y_true = dataloader.dataset.dataset.rescale(y_true, idx_label)
+            y_pred = dataloader.dataset.dataset.rescale(y_pred, idx_label)
 
         # Add title, axis and legend
         plt.plot(y_true, label="Truth")
@@ -104,8 +104,8 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
 
     # Plot ambient temperature
     plt.subplot(9, 1, idx_label+2)
-    t_amb = x[:, dataloader.dataset.labels["Z"].index("TAMB")]
-    t_amb = dataloader.dataset.rescale(t_amb, -1)
+    t_amb = x[:, dataloader.dataset.dataset.labels["Z"].index("TAMB")]
+    t_amb = dataloader.dataset.dataset.rescale(t_amb, -1)
     plt.plot(t_amb, label="TAMB", c="red")
     plt.legend()
 
