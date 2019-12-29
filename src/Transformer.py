@@ -1,5 +1,3 @@
-from typing import Optional
-
 import torch
 import torch.nn as nn
 
@@ -39,12 +37,15 @@ class Transformer(nn.Module):
         Time length.
     N:
         Number of encoder and decoder layers to stack.
+    dropout:
+        Dropout probability after each MHA or PFF block.
+        Default is ``0.3``.
     chunk_mode:
         Swict between different MultiHeadAttention blocks.
-        One of ``'chunk'``, ``'window'`` or None, Default is ``'chunk'``.
+        One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
-        Must be one of ``'original'``, ``'regular'`` or None. Default is None.
+        Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
     """
 
     def __init__(self,
@@ -56,13 +57,28 @@ class Transformer(nn.Module):
                  h: int,
                  k: int,
                  N: int,
-                 chunk_mode: Optional[bool] = True,
-                 pe: Optional[str] = None):
+                 dropout: float = 0.3,
+                 chunk_mode: bool = True,
+                 pe: str = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
-        self.layers_encoding = nn.ModuleList([Encoder(d_model, q, v, h, k, chunk_mode=chunk_mode, pe=pe) for _ in range(N)])
-        self.layers_decoding = nn.ModuleList([Decoder(d_model, q, v, h, k, chunk_mode=chunk_mode, pe=pe) for _ in range(N)])
+        self.layers_encoding = nn.ModuleList([Encoder(d_model,
+                                                      q,
+                                                      v,
+                                                      h,
+                                                      k,
+                                                      dropout=dropout,
+                                                      chunk_mode=chunk_mode,
+                                                      pe=pe) for _ in range(N)])
+        self.layers_decoding = nn.ModuleList([Decoder(d_model,
+                                                      q,
+                                                      v,
+                                                      h,
+                                                      k,
+                                                      dropout=dropout,
+                                                      chunk_mode=chunk_mode,
+                                                      pe=pe) for _ in range(N)])
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
