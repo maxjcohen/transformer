@@ -9,6 +9,7 @@ Modules
    Decoder
    MultiHeadAttention
    PositionwiseFeedForward
+   loss
    dataset
    Benchmark
    utils

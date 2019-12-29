@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -28,12 +26,15 @@ class Decoder(nn.Module):
         Number of heads.
     k:
         Time window length.
+    dropout:
+        Dropout probability after each MHA or PFF block.
+        Default is ``0.3``.
     chunk_mode:
         Swict between different MultiHeadAttention blocks.
-        One of ``'chunk'``, ``'window'`` or None, Default is ``'chunk'``.
+        One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
-        Must be one of ``'original'``, ``'regular'`` or None. Default is None.
+        Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
     """
 
     def __init__(self,
@@ -43,8 +44,8 @@ class Decoder(nn.Module):
                  h: int,
                  k: int,
                  dropout: float = 0.3,
-                 chunk_mode: Union[str, None] = 'chunk',
-                 pe: Optional[str] = None):
+                 chunk_mode: str = 'chunk',
+                 pe: str = None):
         """Initialize the Decoder block"""
         super().__init__()
 
