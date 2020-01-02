@@ -21,6 +21,7 @@
         "ventilation_mask",
         "occupancy",
         "pc_on_mask",
+        "lights_on_mask",
         "DNI",
         "IBEAM_H",
         "IBEAM_N",
@@ -34,6 +35,7 @@
         "capacitance_kJ_perdegreK_perm3",
         "power_VCV_kW_heat",
         "power_VCV_kW_clim",
+        "talon_kW",
         "nb_occupants",
         "nb_PCs",
         "facade_1_thickness_2",
@@ -44,10 +46,10 @@
         "facade_3_window_area_percent",
         "facade_4_thickness_2",
         "facade_4_window_area_percent",
-        "roof_1_thickness_2",
-        "ground_thickness_2",
+        "roof_1_thickness_3",
         "init_day",
         "init_month",
-        "init_year"
+        "init_year",
+        "t_init"
     ]
 }
