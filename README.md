@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![License: GPL v3](https://img.shields.io/github/release/maxjcohen/transformer.svg)](https://github.com/maxjcohen/transformer/releases/latest)
 
 Transformers for Time Series
 ============================
