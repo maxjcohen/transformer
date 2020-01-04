@@ -1,6 +1,7 @@
-# Env
+# Env and package
 .env
 .vscode
+*.whl
 
 # Dataset
 *.npz
