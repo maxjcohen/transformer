@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
-from src.PositionwiseFeedForward import PositionwiseFeedForward
-from src.utils import generate_original_PE, generate_regular_PE
+from tst.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
+from tst.PositionwiseFeedForward import PositionwiseFeedForward
+from tst.utils import generate_original_PE, generate_regular_PE
 
 
 class Decoder(nn.Module):
