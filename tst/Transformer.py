@@ -34,8 +34,6 @@ class Transformer(nn.Module):
         Dimension of values.
     h:
         Number of heads.
-    k:
-        Time length.
     N:
         Number of encoder and decoder layers to stack.
     dropout:
@@ -56,7 +54,6 @@ class Transformer(nn.Module):
                  q: int,
                  v: int,
                  h: int,
-                 k: int,
                  N: int,
                  dropout: float = 0.3,
                  chunk_mode: bool = True,
@@ -70,14 +67,12 @@ class Transformer(nn.Module):
                                                       q,
                                                       v,
                                                       h,
-                                                      k,
                                                       dropout=dropout,
                                                       chunk_mode=chunk_mode) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(d_model,
                                                       q,
                                                       v,
                                                       h,
-                                                      k,
                                                       dropout=dropout,
                                                       chunk_mode=chunk_mode) for _ in range(N)])
 

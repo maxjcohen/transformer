@@ -23,8 +23,6 @@ class Encoder(nn.Module):
         Dimension of all value matrix.
     h:
         Number of heads.
-    k:
-        Time window length.
     dropout:
         Dropout probability after each MHA or PFF block.
         Default is ``0.3``.
@@ -38,7 +36,6 @@ class Encoder(nn.Module):
                  q: int,
                  v: int,
                  h: int,
-                 k: int,
                  dropout: float = 0.3,
                  chunk_mode: str = 'chunk'):
         """Initialize the Encoder block"""
@@ -57,7 +54,7 @@ class Encoder(nn.Module):
             raise NameError(
                 f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
 
-        self._selfAttention = MHA(d_model, q, v, h, k)
+        self._selfAttention = MHA(d_model, q, v, h)
         self._feedForward = PositionwiseFeedForward(d_model)
 
         self._layerNorm1 = nn.LayerNorm(d_model)

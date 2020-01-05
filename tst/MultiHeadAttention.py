@@ -23,20 +23,16 @@ class MultiHeadAttention(nn.Module):
         Dimension of all value matrix.
     h:
         Number of heads.
-    k:
-        Time window length.
     """
 
     def __init__(self,
                  d_model: int,
                  q: int,
                  v: int,
-                 h: int,
-                 k: int):
+                 h: int):
         """Initialize the Multi Head Block."""
         super().__init__()
 
-        self._K = k
         self._h = h
 
         # Query, keys and value matrices
@@ -46,10 +42,6 @@ class MultiHeadAttention(nn.Module):
 
         # Output linear function
         self._W_o = nn.Linear(self._h*v, d_model)
-
-        # Score mask for decoder
-        self._scores_mask = torch.triu(torch.ones(
-            (self._K, self._K)), diagonal=1).bool()
 
         # Score placeholder
         self._scores = None
@@ -81,17 +73,21 @@ class MultiHeadAttention(nn.Module):
         -------
             Self attention tensor with shape (batch_size, K, d_model).
         """
+        K = query.shape[1]
+
         # Compute Q, K and V, concatenate heads on batch dimension
         queries = torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0)
         keys = torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0)
         values = torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0)
 
         # Scaled Dot Product
-        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._K)
+        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(K)
 
         # Mask scores
         if mask == "subsequent":
-            self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
+            scores_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
+            scores_mask = scores_mask.to(self._scores.device)
+            self._scores = self._scores.masked_fill(scores_mask, float('-inf'))
 
         self._scores = F.softmax(self._scores, dim=-1)
 
@@ -134,8 +130,6 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         Dimension of all value matrix.
     h:
         Number of heads.
-    k:
-        Time window length.
     chunk_size:
         Size of chunks to apply attention on. Last one may be smaller (see :class:`torch.Tensor.chunk`).
         Default is 168.
@@ -146,18 +140,16 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
                  q: int,
                  v: int,
                  h: int,
-                 k: int,
                  chunk_size: Optional[int] = 168,
                  **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__(d_model, q, v, h, k, **kwargs)
+        super().__init__(d_model, q, v, h, **kwargs)
 
         self._chunk_size = chunk_size
-        self._n_chunk = self._K // self._chunk_size
 
         # Score mask for decoder
-        self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._K // self._n_chunk, self._K // self._n_chunk)), diagonal=1).bool(), requires_grad=False)
-
+        self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._chunk_size, self._chunk_size)), diagonal=1).bool(),
+                                         requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
@@ -186,28 +178,34 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         -------
             Self attention tensor with shape (batch_size, K, d_model).
         """
+        K = query.shape[1]
+        n_chunk = K // self._chunk_size
+
         # Compute Q, K and V, concatenate heads on batch dimension
-        queries = torch.cat(torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
-        keys = torch.cat(torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
-        values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(self._n_chunk, dim=1), dim=0)
+        queries = torch.cat(torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
+        keys = torch.cat(torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
+        values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
 
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._chunk_size)
 
         if mask == "subsequent":
-            self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(
+                self._scores_mask, float('-inf'))
 
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
 
         # Concatenat the heads
-        attention_heads = torch.cat(torch.cat(attention.chunk(self._n_chunk, dim=0), dim=1).chunk(self._h, dim=0), dim=-1)
+        attention_heads = torch.cat(torch.cat(attention.chunk(
+            n_chunk, dim=0), dim=1).chunk(self._h, dim=0), dim=-1)
 
         # Apply linear transformation W^O
         self_attention = self._W_o(attention_heads)
 
         return self_attention
+
 
 class MultiHeadAttentionWindow(MultiHeadAttention):
     """Multi Head Attention block with moving window.
@@ -227,8 +225,6 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         Dimension of all value matrix.
     h:
         Number of heads.
-    k:
-        Time window length.
     window_size:
         Size of the window used to extract chunks.
         Default is 168
@@ -242,14 +238,13 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
                  q: int,
                  v: int,
                  h: int,
-                 k: int,
                  window_size: Optional[int] = 168,
                  padding: Optional[int] = 168 // 4,
                  **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__(d_model, q, v, h, k, **kwargs)
+        super().__init__(d_model, q, v, h, **kwargs)
 
-        self._window_size = 168
+        self._window_size = window_size
         self._padding = padding
         self._q = q
         self._v = v
@@ -266,8 +261,9 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         local_map = np.empty((self._window_size, self._window_size))
         i, j = np.indices(local_map.shape)
         local_map[i, j] = np.exp(-np.abs(i - j) * alpha) - 1
-        
-        self._local_map = nn.Parameter(torch.Tensor(local_map), requires_grad=False)
+
+        self._local_map = nn.Parameter(torch.Tensor(local_map),
+                                       requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
