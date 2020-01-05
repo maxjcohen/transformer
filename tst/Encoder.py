@@ -5,7 +5,6 @@ import torch.nn.functional as F
 
 from tst.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
 from tst.PositionwiseFeedForward import PositionwiseFeedForward
-from tst.utils import generate_original_PE, generate_regular_PE
 
 
 class Encoder(nn.Module):
@@ -32,9 +31,6 @@ class Encoder(nn.Module):
     chunk_mode:
         Swict between different MultiHeadAttention blocks.
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
-    pe:
-        Type of positional encoding to add.
-        Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
     """
 
     def __init__(self,
@@ -44,8 +40,7 @@ class Encoder(nn.Module):
                  h: int,
                  k: int,
                  dropout: float = 0.3,
-                 chunk_mode: str = 'chunk',
-                 pe: str = None):
+                 chunk_mode: str = 'chunk'):
         """Initialize the Encoder block"""
         super().__init__()
 
@@ -70,19 +65,6 @@ class Encoder(nn.Module):
 
         self._dopout = nn.Dropout(p=dropout)
 
-        pe_functions = {
-            'original': generate_original_PE,
-            'regular': generate_regular_PE,
-        }
-
-        if pe in pe_functions.keys():
-            self._PE = pe_functions[pe](k, d_model)
-        elif pe is None:
-            self._PE = None
-        else:
-            raise NameError(
-                f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Encoder block.
 
@@ -98,10 +80,6 @@ class Encoder(nn.Module):
         -------
             Output tensor with shape (batch_size, K, d_model).
         """
-        # Add position encoding
-        if self._PE is not None:
-            x.add_(self._PE)
-
         # Self attention
         residual = x
         x = self._selfAttention(query=x, key=x, value=x)

@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from tst.Encoder import Encoder
 from tst.Decoder import Decoder
+from tst.utils import generate_original_PE, generate_regular_PE
 
 
 class Transformer(nn.Module):
@@ -69,19 +70,30 @@ class Transformer(nn.Module):
                                                       h,
                                                       k,
                                                       dropout=dropout,
-                                                      chunk_mode=chunk_mode,
-                                                      pe=pe) for _ in range(N)])
+                                                      chunk_mode=chunk_mode) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(d_model,
                                                       q,
                                                       v,
                                                       h,
                                                       k,
                                                       dropout=dropout,
-                                                      chunk_mode=chunk_mode,
-                                                      pe=pe) for _ in range(N)])
+                                                      chunk_mode=chunk_mode) for _ in range(N)])
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
+
+        pe_functions = {
+            'original': generate_original_PE,
+            'regular': generate_regular_PE,
+        }
+
+        if pe in pe_functions.keys():
+            self._PE = nn.Parameter(pe_functions[pe](k, d_model), requires_grad=False)
+        elif pe is None:
+            self._PE = None
+        else:
+            raise NameError(
+                f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through transformer
@@ -101,9 +113,17 @@ class Transformer(nn.Module):
         # Embeddin module
         encoding = self._embedding(x)
 
+        # Add position encoding
+        if self._PE is not None:
+            encoding.add_(self._PE)
+
         # Encoding stack
         for layer in self.layers_encoding:
             encoding = layer(encoding)
+
+        # Add position encoding
+        if self._PE is not None:
+            encoding.add_(self._PE)
 
         # Decoding stack
         decoding = encoding
