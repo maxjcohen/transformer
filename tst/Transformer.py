@@ -64,6 +64,8 @@ class Transformer(nn.Module):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
+        self._d_model = d_model
+
         self.layers_encoding = nn.ModuleList([Encoder(d_model,
                                                       q,
                                                       v,
@@ -88,9 +90,9 @@ class Transformer(nn.Module):
         }
 
         if pe in pe_functions.keys():
-            self._PE = nn.Parameter(pe_functions[pe](k, d_model), requires_grad=False)
+            self._generate_PE = pe_functions[pe]
         elif pe is None:
-            self._PE = None
+            self._generate_PE = None
         else:
             raise NameError(
                 f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
@@ -110,23 +112,30 @@ class Transformer(nn.Module):
         -------
             Output tensor with shape (batch_size, K, d_output).
         """
+        K = x.shape[1]
+
         # Embeddin module
         encoding = self._embedding(x)
 
         # Add position encoding
-        if self._PE is not None:
-            encoding.add_(self._PE)
+        if self._generate_PE is not None:
+            positional_encoding = self._generate_PE(K, self._d_model)
+            positional_encoding = positional_encoding.to(encoding.device)
+            encoding.add_(positional_encoding)
 
         # Encoding stack
         for layer in self.layers_encoding:
             encoding = layer(encoding)
 
-        # Add position encoding
-        if self._PE is not None:
-            encoding.add_(self._PE)
-
         # Decoding stack
         decoding = encoding
+
+        # Add position encoding
+        if self._generate_PE is not None:
+            positional_encoding = self._generate_PE(K, self._d_model)
+            positional_encoding = positional_encoding.to(decoding.device)
+            decoding.add_(positional_encoding)
+
         for layer in self.layers_decoding:
             decoding = layer(decoding, encoding)
 
