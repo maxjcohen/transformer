@@ -1,6 +1,6 @@
 Transformer module
 ==================
 
-.. automodule:: Transformer
+.. automodule:: transformer
    :members:
    :show-inheritance:

@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 
-from tst.Encoder import Encoder
-from tst.Decoder import Decoder
+from tst.encoder import Encoder
+from tst.decoder import Decoder
 from tst.utils import generate_original_PE, generate_regular_PE
 
 

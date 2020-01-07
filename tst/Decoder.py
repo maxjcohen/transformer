@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from tst.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
-from tst.PositionwiseFeedForward import PositionwiseFeedForward
+from tst.multiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
+from tst.positionwiseFeedForward import PositionwiseFeedForward
 
 
 class Decoder(nn.Module):

@@ -1,6 +1,6 @@
 Encoder module
 ==============
 
-.. automodule:: Encoder
+.. automodule:: encoder
    :members:
    :show-inheritance:

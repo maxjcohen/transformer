@@ -1,1 +1,1 @@
-from .Transformer import Transformer
+from .transformer import Transformer

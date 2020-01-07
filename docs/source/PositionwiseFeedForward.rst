@@ -1,6 +1,6 @@
 PositionwiseFeedForward module
 ==============================
 
-.. automodule:: PositionwiseFeedForward
+.. automodule:: positionwiseFeedForward
    :members:
    :show-inheritance:

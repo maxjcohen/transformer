@@ -1,6 +1,6 @@
 Decoder module
 ==============
 
-.. automodule:: Decoder
+.. automodule:: decoder
    :members:
    :show-inheritance:

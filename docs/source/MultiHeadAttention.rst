@@ -1,6 +1,6 @@
 MultiHeadAttention module
 =========================
 
-.. automodule:: MultiHeadAttention
+.. automodule:: multiHeadAttention
    :members:
    :show-inheritance:
