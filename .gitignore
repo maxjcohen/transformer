@@ -2,6 +2,8 @@
 .env
 .vscode
 *.whl
+build
+*.egg-info
 
 # Dataset
 *.npz
