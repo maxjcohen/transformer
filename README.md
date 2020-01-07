@@ -18,8 +18,9 @@ Our usecase is modelling a numerical simulator for building consumption predicti
 
 ## Adaptations for time series
 In order to perform well on time series, a few adjustements had to de made:
-- Replaced embedding layer for a generic linear layer ;
-- Replaced positional encoding with a "regular" version, to better match the input sequence day/night patterns.
+- The embedding layer is replaced by a generic linear layer ;
+- Original positional encoding are removed. A "regular" version, better matching the input sequence day/night patterns, can be used instead ;
+- Decreasing weights are added to the attention map to increase attention on short term patterns.
 
 ## Installation
 All required packages can be found in `requirements.txt`, and expect to be run with `python3.7`. Note that you may have to install pytorch manually if you are not using pip with a Debian distribution : head on to [PyTorch installation page](https://pytorch.org/get-started/locally/). Here are a few lines to get started with pip and virtualenv:
@@ -46,7 +47,7 @@ The `Transformer` class can be used out of the box, [docs](https://timeseriestra
 ```python
 from tst.Transformer import Transformer
 
-net = Transformer(d_input, d_model, d_output, q, v, h, K, N, TIME_CHUNK, pe)
+net = Transformer(d_input, d_model, d_output, q, v, h, N, TIME_CHUNK, pe)
 ```
 
 ### Buidling the docs
