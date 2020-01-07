@@ -29,11 +29,13 @@ class MultiHeadAttention(nn.Module):
                  d_model: int,
                  q: int,
                  v: int,
-                 h: int):
+                 h: int,
+                 alpha: int = 0.3):
         """Initialize the Multi Head Block."""
         super().__init__()
 
         self._h = h
+        self._alpha = alpha
 
         # Query, keys and value matrices
         self._W_q = nn.Linear(d_model, q*self._h)
@@ -88,7 +90,14 @@ class MultiHeadAttention(nn.Module):
             scores_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
             scores_mask = scores_mask.to(self._scores.device)
             self._scores = self._scores.masked_fill(scores_mask, float('-inf'))
-
+        
+        # Compute and add local map
+        local_map = np.empty((K, K))
+        i, j = np.indices(local_map.shape)
+        local_map[i, j] = np.exp(-np.abs(i - j) * self._alpha) - 1
+        local_map = torch.Tensor(local_map).to(self._scores.device)
+        self._scores += local_map
+        
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
