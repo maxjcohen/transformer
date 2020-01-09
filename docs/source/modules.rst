@@ -4,10 +4,10 @@ Modules
 .. toctree::
    :maxdepth: 4
 
-   Transformer
-   Encoder
-   Decoder
-   MultiHeadAttention
-   PositionwiseFeedForward
-   Loss
-   Utils
+   transformer
+   encoder
+   decoder
+   multiHeadAttention
+   positionwiseFeedForward
+   loss
+   utils
