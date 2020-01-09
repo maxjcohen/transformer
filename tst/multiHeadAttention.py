@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 from tst.utils import generate_local_map_mask
 
+
 class MultiHeadAttention(nn.Module):
     """Multi Head Attention block from Attention is All You Need.
 
@@ -100,7 +101,7 @@ class MultiHeadAttention(nn.Module):
             future_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
             future_mask = future_mask.to(self._scores.device)
             self._scores = self._scores.masked_fill(future_mask, float('-inf'))
-        
+
         # Apply sotfmax
         self._scores = F.softmax(self._scores, dim=-1)
 
