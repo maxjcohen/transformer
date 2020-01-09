@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from tst.utils import generate_local_map_mask
 
 class MultiHeadAttention(nn.Module):
     """Multi Head Attention block from Attention is All You Need.
@@ -23,6 +24,9 @@ class MultiHeadAttention(nn.Module):
         Dimension of all value matrix.
     h:
         Number of heads.
+    attention_size:
+        Number of backward elements to apply attention.
+        Deactivated if ``None``. Default is ``None``.
     """
 
     def __init__(self,
@@ -30,12 +34,12 @@ class MultiHeadAttention(nn.Module):
                  q: int,
                  v: int,
                  h: int,
-                 alpha: int = 0.3):
+                 attention_size: int = None):
         """Initialize the Multi Head Block."""
         super().__init__()
 
         self._h = h
-        self._alpha = alpha
+        self._attention_size = attention_size
 
         # Query, keys and value matrices
         self._W_q = nn.Linear(d_model, q*self._h)
@@ -85,19 +89,19 @@ class MultiHeadAttention(nn.Module):
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(K)
 
-        # Mask scores
+        # Compute local map mask
+        if self._attention_size is not None:
+            attention_mask = generate_local_map_mask(K, self._attention_size, self._scores.device)
+            
+            self._scores = self._scores.masked_fill(attention_mask, float('-inf'))
+
+        # Compute future mask
         if mask == "subsequent":
-            scores_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
-            scores_mask = scores_mask.to(self._scores.device)
-            self._scores = self._scores.masked_fill(scores_mask, float('-inf'))
+            future_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
+            future_mask = future_mask.to(self._scores.device)
+            self._scores = self._scores.masked_fill(future_mask, float('-inf'))
         
-        # Compute and add local map
-        local_map = np.empty((K, K))
-        i, j = np.indices(local_map.shape)
-        local_map[i, j] = np.exp(-np.abs(i - j) * self._alpha) - 1
-        local_map = torch.Tensor(local_map).to(self._scores.device)
-        self._scores += local_map
-        
+        # Apply sotfmax
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
@@ -139,6 +143,9 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         Dimension of all value matrix.
     h:
         Number of heads.
+    attention_size:
+        Number of backward elements to apply attention.
+        Deactivated if ``None``. Default is ``None``.
     chunk_size:
         Size of chunks to apply attention on. Last one may be smaller (see :class:`torch.Tensor.chunk`).
         Default is 168.
@@ -149,16 +156,21 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
                  q: int,
                  v: int,
                  h: int,
+                 attention_size: int = None,
                  chunk_size: Optional[int] = 168,
                  **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__(d_model, q, v, h, **kwargs)
+        super().__init__(d_model, q, v, h, attention_size, **kwargs)
 
         self._chunk_size = chunk_size
 
         # Score mask for decoder
-        self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._chunk_size, self._chunk_size)), diagonal=1).bool(),
+        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._chunk_size, self._chunk_size)), diagonal=1).bool(),
                                          requires_grad=False)
+
+        if self._attention_size is not None:
+            self._attention_mask = nn.Parameter(generate_local_map_mask(self._chunk_size, self._attention_size),
+                                                requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
@@ -198,10 +210,15 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._chunk_size)
 
-        if mask == "subsequent":
-            self._scores = self._scores.masked_fill(
-                self._scores_mask, float('-inf'))
+        # Compute local map mask
+        if self._attention_size is not None:
+            self._scores = self._scores.masked_fill(self._attention_mask, float('-inf'))
 
+        # Compute future mask
+        if mask == "subsequent":
+            self._scores = self._scores.masked_fill(self._future_mask, float('-inf'))
+
+        # Apply softmax
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)
@@ -234,6 +251,9 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         Dimension of all value matrix.
     h:
         Number of heads.
+    attention_size:
+        Number of backward elements to apply attention.
+        Deactivated if ``None``. Default is ``None``.
     window_size:
         Size of the window used to extract chunks.
         Default is 168
@@ -247,11 +267,12 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
                  q: int,
                  v: int,
                  h: int,
+                 attention_size: int = None,
                  window_size: Optional[int] = 168,
                  padding: Optional[int] = 168 // 4,
                  **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__(d_model, q, v, h, **kwargs)
+        super().__init__(d_model, q, v, h, attention_size, **kwargs)
 
         self._window_size = window_size
         self._padding = padding
@@ -262,17 +283,12 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         self._step = self._window_size - 2 * self._padding
 
         # Score mask for decoder
-        self._scores_mask = nn.Parameter(torch.triu(torch.ones((self._window_size, self._window_size)), diagonal=1).bool(),
+        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._window_size, self._window_size)), diagonal=1).bool(),
                                          requires_grad=False)
 
-        # Compute local map
-        alpha = 0.1
-        local_map = np.empty((self._window_size, self._window_size))
-        i, j = np.indices(local_map.shape)
-        local_map[i, j] = np.exp(-np.abs(i - j) * alpha) - 1
-
-        self._local_map = nn.Parameter(torch.Tensor(local_map),
-                                       requires_grad=False)
+        if self._attention_size is not None:
+            self._attention_mask = nn.Parameter(generate_local_map_mask(self._window_size, self._attention_size),
+                                                requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
@@ -321,10 +337,15 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._window_size)
 
-        if mask == "subsequent":
-            self._scores = self._scores.masked_fill(self._scores_mask, float('-inf'))
+        # Compute local map mask
+        if self._attention_size is not None:
+            self._scores = self._scores.masked_fill(self._attention_mask, float('-inf'))
 
-        self._scores += self._local_map
+        # Compute future mask
+        if mask == "subsequent":
+            self._scores = self._scores.masked_fill(self._future_mask, float('-inf'))
+
+        # Apply softmax
         self._scores = F.softmax(self._scores, dim=-1)
 
         attention = torch.bmm(self._scores, values)

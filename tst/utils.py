@@ -53,3 +53,27 @@ def generate_regular_PE(length: int, d_model: int, period: Optional[int] = 24) -
     PE = PE.repeat((1, d_model))
 
     return PE
+
+
+def generate_local_map_mask(chunk_size: int,
+                            attention_size: int,
+                            device: torch.device = 'cpu') -> torch.BoolTensor:
+    """Compute attention mask as attention_size wide diagonal.
+
+    Parameters
+    ----------
+    chunk_size:
+        Time dimension size.
+    attention_size:
+        Number of backward elements to apply attention.
+    device:
+        torch device. Default is ``'cpu'``.
+
+    Returns
+    -------
+        Mask as a boolean tensor.
+    """
+    local_map = np.empty((chunk_size, chunk_size))
+    i, j = np.indices(local_map.shape)
+    local_map[i, j] = np.abs(i - j) > attention_size
+    return torch.BoolTensor(local_map).to(device)

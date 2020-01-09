@@ -36,6 +36,9 @@ class Transformer(nn.Module):
         Number of heads.
     N:
         Number of encoder and decoder layers to stack.
+    attention_size:
+        Number of backward elements to apply attention.
+        Deactivated if ``None``. Default is ``None``.
     dropout:
         Dropout probability after each MHA or PFF block.
         Default is ``0.3``.
@@ -55,6 +58,7 @@ class Transformer(nn.Module):
                  v: int,
                  h: int,
                  N: int,
+                 attention_size: int = None,
                  dropout: float = 0.3,
                  chunk_mode: bool = True,
                  pe: str = None):
@@ -67,12 +71,14 @@ class Transformer(nn.Module):
                                                       q,
                                                       v,
                                                       h,
+                                                      attention_size=attention_size,
                                                       dropout=dropout,
                                                       chunk_mode=chunk_mode) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(d_model,
                                                       q,
                                                       v,
                                                       h,
+                                                      attention_size=attention_size,
                                                       dropout=dropout,
                                                       chunk_mode=chunk_mode) for _ in range(N)])
 
