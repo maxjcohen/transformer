@@ -55,35 +55,3 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
     t_amb = dataloader.dataset.dataset.rescale(t_amb, -1)
     plt.plot(t_amb, label="TAMB", c="red")
     plt.legend()
-
-
-def compute_loss(net: torch.nn.Module,
-                 dataloader: torch.utils.data.DataLoader,
-                 loss_function: torch.nn.Module,
-                 device: torch.device = 'cpu') -> torch.Tensor:
-    """Compute the loss of a network on a given dataset.
-
-    Does not compute gradient.
-
-    Parameters
-    ----------
-    net:
-        Network to evaluate.
-    dataloader:
-        Iterator on the dataset.
-    loss_function:
-        Loss function to compute.
-    device:
-        Torch device, or :py:class:`str`.
-
-    Returns
-    -------
-    Loss as a tensor with no grad.
-    """
-    running_loss = 0
-    with torch.no_grad():
-        for x, y in dataloader:
-            netout = net(x.to(device)).cpu()
-            running_loss += loss_function(y, netout)
-
-    return running_loss / len(dataloader)
