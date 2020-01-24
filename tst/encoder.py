@@ -85,15 +85,13 @@ class Encoder(nn.Module):
         residual = x
         x = self._selfAttention(query=x, key=x, value=x)
         x = self._dopout(x)
-        x.add_(residual)
-        x = self._layerNorm1(x)
+        x = self._layerNorm1(x + residual)
 
         # Feed forward
         residual = x
         x = self._feedForward(x)
         x = self._dopout(x)
-        x.add_(residual)
-        x = self._layerNorm2(x)
+        x = self._layerNorm2(x + residual)
 
         return x
 

@@ -92,21 +92,18 @@ class Decoder(nn.Module):
         residual = x
         x = self._selfAttention(query=x, key=x, value=x, mask="subsequent")
         x = self._dopout(x)
-        x.add_(residual)
-        x = self._layerNorm1(x)
+        x = self._layerNorm1(x + residual)
 
         # Encoder-decoder attention
         residual = x
         x = self._selfAttention(query=x, key=memory, value=memory)
         x = self._dopout(x)
-        x.add_(residual)
-        x = self._layerNorm2(x)
+        x = self._layerNorm2(x + residual)
 
         # Feed forward
         residual = x
         x = self._feedForward(x)
         x = self._dopout(x)
-        x.add_(residual)
-        x = self._layerNorm3(x)
+        x = self._layerNorm3(x + residual)
 
         return x
