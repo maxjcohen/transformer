@@ -24,7 +24,7 @@ copyright = '2019, Max Cohen'
 author = 'Max Cohen'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------

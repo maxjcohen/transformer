@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tst",
-    version="0.2.0",
+    version="0.3.0",
     author="Max Cohen",
     author_email="max.zagouri@pm.me",
     description="Time Series Transformer",
