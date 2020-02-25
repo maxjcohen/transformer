@@ -35,7 +35,6 @@
         "capacitance_kJ_perdegreK_perm3",
         "power_VCV_kW_heat",
         "power_VCV_kW_clim",
-        "talon_kW",
         "nb_occupants",
         "nb_PCs",
         "facade_1_thickness_2",
@@ -50,6 +49,6 @@
         "init_day",
         "init_month",
         "init_year",
-        "t_init"
+        "initial_temperature"
     ]
 }
