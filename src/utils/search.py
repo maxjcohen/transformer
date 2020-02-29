@@ -59,6 +59,27 @@ def kfold(dataset, n_chunk, batch_size, num_workers):
         
         yield dataloader_train, dataloader_val
 
+def leargnin_curve(dataset, n_part, validation_split, batch_size, num_workers):
+    # Split train and val
+    val_split = int(len(dataset) * validation_split)
+    subset_train, subset_val = random_split(dataset, [len(dataset) - val_split, val_split])
+
+    dataloader_val = DataLoader(subset_val,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=num_workers
+                                 )
+
+    for idx in np.linspace(0, len(subset_train), n_part+1).astype(int)[1:]:
+        subset_learning = Subset(dataset, subset_train.indices[:idx])
+        dataloader_train = DataLoader(subset_learning,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=num_workers
+                                 )
+
+        yield dataloader_train, dataloader_val
+
 class Logger:
     def __init__(self, csv_path, search_params=[]):
         self.csv_file = open(csv_path, 'w')
