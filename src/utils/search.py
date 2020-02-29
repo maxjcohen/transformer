@@ -2,7 +2,7 @@ import csv
 
 import torch
 import numpy as np
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset, random_split
 
 from src.utils.utils import compute_loss
 
@@ -43,8 +43,8 @@ def kfold(dataset, n_chunk, batch_size, num_workers):
     for idx_val, chunk_val in enumerate(chunks_idx):
         chunk_train = np.concatenate([chunk_train for idx_train, chunk_train in enumerate(chunks_idx) if idx_train != idx_val])
         
-        subset_train = torch.utils.data.Subset(dataset, chunk_train)
-        subset_val = torch.utils.data.Subset(dataset, chunk_val)
+        subset_train = Subset(dataset, chunk_train)
+        subset_val = Subset(dataset, chunk_val)
         
         dataloader_train = DataLoader(subset_train,
                               batch_size=batch_size,
