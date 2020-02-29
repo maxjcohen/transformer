@@ -36,12 +36,12 @@ def fit(net, optimizer, loss_function, dataloader_train, dataloader_val, epochs=
     return val_loss_best
 
 class Logger:
-    def __init__(self, csv_path, search_params):
+    def __init__(self, csv_path, search_params=[]):
         self.csv_file = open(csv_path, 'w')
-        self.writer = csv.DictWriter(self.csv_file, list(search_params.keys()) + ['loss'])
+        self.writer = csv.DictWriter(self.csv_file, search_params + ['loss'])
         self.writer.writeheader()
         
-    def log(self, params, **kwargs):
+    def log(self, params={}, **kwargs):
         params.update(kwargs)
         self.writer.writerow(params)
         self.csv_file.flush()
