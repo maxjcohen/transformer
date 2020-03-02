@@ -15,6 +15,8 @@ class LSTM(nn.Module):
         Output dimension.
     num_layers:
         Number of LSTM layers.
+    dropout:
+        Dropout value. Default is ``0``.
     """
 
     def __init__(self,
@@ -22,10 +24,11 @@ class LSTM(nn.Module):
                  hidden_dim: int,
                  output_dim: int,
                  num_layers: int,
+                 dropout: float = 0,
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout)
         self.linear = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
