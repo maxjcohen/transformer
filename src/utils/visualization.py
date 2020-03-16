@@ -55,3 +55,137 @@ def visual_sample(dataloader: torch.utils.data.DataLoader,
     t_amb = dataloader.dataset.dataset.rescale(t_amb, -1)
     plt.plot(t_amb, label="TAMB", c="red")
     plt.legend()
+
+
+def plot_error(dataset, predictions, labels, indices=None, time_limit=None):
+    y_hat = predictions
+    
+    if indices is not None:
+        x = dataset._x[indices].numpy()
+        y = dataset._y[indices].numpy()
+    else:
+        x = dataset._x.numpy()
+        y = dataset._y.numpy()
+
+    if time_limit is None:
+        time_limit = x.shape[1]
+        
+    occupancy = (x[..., labels["Z"].index("occupancy")].mean(axis=0)>0.5).astype(float)[:time_limit]
+
+    fig, axes = plt.subplots(8, 1)
+    fig.set_figwidth(20)
+    fig.set_figheight(40)
+    plt.subplots_adjust(bottom=0.05)
+
+    for idx_label, (label, ax) in enumerate(zip(labels['X'], axes)):
+        # Select output to plot
+        y_true = y[:, :time_limit, idx_label]
+        y_pred = y_hat[:, :time_limit, idx_label]
+
+        # Rescale
+        y_true = dataset.rescale(y_true, idx_label)
+        y_pred = dataset.rescale(y_pred, idx_label)
+
+        # Convert kJ/h to kW
+        if label.startswith('Q_'):
+            y_true /= 3600
+            y_pred /= 3600
+
+        # Compute delta, mean and std
+        delta = np.abs(y_true - y_pred)
+
+        mean = delta.mean(axis=0)
+        std = delta.std(axis=0)
+
+        # Plot
+        # Labels for consumption and temperature
+        if label.startswith('Q_'):
+            y_label_unit = 'kW'
+        else:
+            y_label_unit = '°C'
+
+        # Occupancy
+        occupancy_idxes = np.where(np.diff(occupancy) != 0)[0]
+        for idx in range(0, len(occupancy_idxes), 2):
+            ax.axvspan(occupancy_idxes[idx], occupancy_idxes[idx+1], facecolor='green', alpha=.15)
+
+        # Std
+        ax.fill_between(np.arange(time_limit), (mean - std), (mean + std), alpha=.4, label='std')
+
+        # Mean
+        ax.plot(mean, label='mean')
+
+        # Title and labels
+        ax.set_title(label)
+        ax.set_xlabel('time', fontsize=16)
+        ax.set_ylabel(y_label_unit, fontsize=16)
+
+        ax.legend()
+
+
+def plot_values(dataset, predictions, labels, indices=None, time_limit=None):
+    y_hat = predictions
+    
+    if indices is not None:
+        x = dataset._x[indices].numpy()
+        y = dataset._y[indices].numpy()
+    else:
+        x = dataset._x.numpy()
+        y = dataset._y.numpy()
+        
+    if time_limit is None:
+        time_limit = x.shape[1]
+        
+    occupancy = (x[..., labels["Z"].index("occupancy")].mean(axis=0)>0.5).astype(float)[:time_limit]
+        
+    fig, axes = plt.subplots(8, 1)
+    fig.set_figwidth(20)
+    fig.set_figheight(40)
+    plt.subplots_adjust(bottom=0.05)
+
+    for idx_label, (label, ax) in enumerate(zip(labels['X'], axes)):
+        # Select output to plot
+        y_true = y[:, :time_limit, idx_label]
+        y_pred = y_hat[:, :time_limit, idx_label]
+
+        # Rescale
+        y_true = dataset.rescale(y_true, idx_label)
+        y_pred = dataset.rescale(y_pred, idx_label)
+
+        # Convert kJ/h to kW
+        if label.startswith('Q_'):
+            y_true /= 3600
+            y_pred /= 3600
+
+        # Compute mean and std
+        y_true_mean = y_true.mean(axis=0)
+        y_true_std = y_true.std(axis=0)
+        y_pred_mean = y_pred.mean(axis=0)
+        y_pred_std = y_pred.std(axis=0)
+
+        # Plot
+        # Labels for consumption and temperature
+        if label.startswith('Q_'):
+            y_label_unit = 'kW'
+        else:
+            y_label_unit = '°C'
+
+        # Occupancy
+        occupancy_idxes = np.where(np.diff(occupancy) != 0)[0]
+        for idx in range(0, len(occupancy_idxes), 2):
+            ax.axvspan(occupancy_idxes[idx], occupancy_idxes[idx+1], facecolor='green', alpha=.15)
+
+        # Std
+        ax.fill_between(np.arange(time_limit), (y_true_mean - y_true_std), (y_true_mean + y_true_std), alpha=.4, color='darkgreen', label='true std')
+        ax.fill_between(np.arange(time_limit), (y_pred_mean - y_pred_std), (y_pred_mean + y_pred_std), alpha=.4, color='b', label='pred std')
+
+        # Mean
+        ax.plot(y_true_mean, color='darkgreen', linewidth=3, label='true mean')
+        ax.plot(y_pred_mean, color='b', label='pred mean')
+
+        # Title and labels
+        ax.set_title(label)
+        ax.set_xlabel('time', fontsize=16)
+        ax.set_ylabel(y_label_unit, fontsize=16)
+
+        ax.legend()
