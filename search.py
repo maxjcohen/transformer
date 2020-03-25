@@ -18,12 +18,12 @@ from src.utils import compute_loss, fit, Logger
 
 # ===== user set params ====
 search_params = OrderedDict({
-    "d_model": [32],  # 2 ** np.arange(5, 10),
-    "q": [8],  # 2 ** np.arange(3, 7),
-    "v": [8],  # 2 ** np.arange(3, 7),
-    "h": [4],  # np.arange(2, 9, 2),
-    "N": [2],  # np.arange(2, 7, 2),
-    "attention_size": [12],  # np.arange(12, 73, 12)
+    "d_model": [32],
+    "q": [8],
+    "v": [8],
+    "h": [2, 4, 8],
+    "N": [2],
+    "attention_size": [12],
 })
 
 # Training parameters
@@ -31,15 +31,15 @@ DATASET_PATH = 'datasets/dataset.npz'
 BATCH_SIZE = 4
 NUM_WORKERS = 4
 LR = 2e-4
-EPOCHS = 10
+EPOCHS = 30
 # ===== user set params ====
 
 # Model parameters
 dropout = 0.2  # Dropout rate
 pe = None  # Positional encoding
-chunk_mode = "window"
+chunk_mode = None
 
-d_input = 39  # From dataset
+d_input = 38  # From dataset
 d_output = 8  # From dataset
 
 # Config
@@ -53,7 +53,9 @@ loss_function = OZELoss(alpha=0.3)
 ozeDataset = OzeDataset(DATASET_PATH)
 
 # Split between train and val
-dataset_train, dataset_val = random_split(ozeDataset, (750, 250))
+dataset_train, dataset_val = random_split(
+    ozeDataset,
+    (int(len(ozeDataset)*0.9), len(ozeDataset) - int(len(ozeDataset)*0.9)))
 
 dataloader_train = DataLoader(dataset_train,
                               batch_size=BATCH_SIZE,
