@@ -18,7 +18,7 @@ DATASET_PATH = 'datasets/dataset.npz'
 BATCH_SIZE = 8
 NUM_WORKERS = 4
 LR = 2e-4
-EPOCHS = 5
+EPOCHS = 30
 
 # Model parameters
 d_model = 32  # Lattent dim
