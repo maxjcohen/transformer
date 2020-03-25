@@ -1,23 +1,20 @@
 import numpy as np
-from matplotlib import pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-import seaborn as sns
 
 from tst import Transformer
 from tst.loss import OZELoss
 
 from src.dataset import OzeDataset
-from src.utils import visual_sample, compute_loss
 from src.utils import compute_loss, fit, Logger, kfold
 
 # Search parameters
-CHUNKS = 3
+CHUNKS = 5
 
 # Training parameters
-DATASET_PATH = 'datasets/dataset_random.npz'
+DATASET_PATH = 'datasets/dataset.npz'
 BATCH_SIZE = 8
 NUM_WORKERS = 4
 LR = 2e-4
@@ -38,7 +35,6 @@ d_input = 38  # From dataset
 d_output = 8  # From dataset
 
 # Config
-sns.set()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"Using device {device}")
 
@@ -50,7 +46,7 @@ ozeDataset = OzeDataset(DATASET_PATH)
 loss_function = OZELoss(alpha=0.3)
 
 
-logger = Logger('crossvalidation_log.csv')
+logger = Logger(f'crossvalidation_log_{attention_size}_{h}_{N}.csv')
 
 kfoldIterator = kfold(ozeDataset, n_chunk=CHUNKS,
                       batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
