@@ -7,4 +7,4 @@ Trainings
    :reversed:
    :glob:
 
-   notebooks/*
+   notebooks/trainings/*
