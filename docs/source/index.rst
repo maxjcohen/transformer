@@ -6,4 +6,5 @@ Transformer for metamodels
 
    README.md
    modules.rst
+   visualizations.rst
    trainings.rst
