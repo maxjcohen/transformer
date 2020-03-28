@@ -1,3 +1,7 @@
 .wy-nav-content-wrap a:visited {
     color: #2980B9;
 }
+
+.wy-nav-content {
+    max-width: none;
+}
