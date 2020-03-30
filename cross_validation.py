@@ -9,6 +9,7 @@ from tst.loss import OZELoss
 
 from src.dataset import OzeDataset
 from src.utils import compute_loss, fit, Logger, kfold
+from src.benchmark import LSTM, GRU
 
 # Search parameters
 CHUNKS = 5
@@ -21,11 +22,11 @@ LR = 2e-4
 EPOCHS = 30
 
 # Model parameters
-d_model = 32  # Lattent dim
+d_model = 128  # Lattent dim
 q = 8  # Query size
 v = 8  # Value size
 h = 2  # Number of heads
-N = 2  # Number of encoder and decoder to stack
+N = 8  # Number of encoder and decoder to stack
 attention_size = 24  # Attention window size
 dropout = 0.2  # Dropout rate
 pe = None  # Positional encoding
@@ -55,8 +56,9 @@ with tqdm(total=CHUNKS*EPOCHS) as pbar:
     for dataloader_train, dataloader_val in kfoldIterator:
 
         # Load transformer with Adam optimizer and MSE loss function
-        net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
-                          dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
+        # net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
+        #                   dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
+        net = LSTM(input_dim, hidden_dim, output_dim, num_layers=N, dropout=dropout)
 
         optimizer = optim.Adam(net.parameters(), lr=LR)
 
