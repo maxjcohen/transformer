@@ -43,8 +43,10 @@ class LSTM(nn.Module):
         -------
             Output tensor with shape (m, K, output_dim)
         """
+        x.transpose_(1, 0)
         rnn_out, _ = self.rnn(x)
         output = self.linear(rnn_out)
+        output.transpose_(1, 0)
         return output
 
 class GRU(LSTM):
