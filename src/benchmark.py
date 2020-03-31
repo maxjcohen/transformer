@@ -49,8 +49,8 @@ class LSTM(nn.Module):
         output.transpose_(1, 0)
         return output
 
-class GRU(LSTM):
-    """Benchmark GRU.
+class BiGRU(LSTM):
+    """Benchmark Bidirictionnal GRU.
 
     Parameters
     ----------
@@ -75,4 +75,4 @@ class GRU(LSTM):
                  **kwargs):
         super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, **kwargs)
 
-        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout)
+        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, bidirectional=True)
