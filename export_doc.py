@@ -34,6 +34,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     notebook_path = Path(args.notebook)
-    export_path = Path(args.output_dir or "docs/source/notebooks/")
+    export_path = Path(args.output_dir or "docs/source/notebooks/trainings/")
 
     export_notebook(notebook_path, export_path)

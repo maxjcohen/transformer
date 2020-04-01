@@ -3,10 +3,14 @@ from matplotlib import pyplot as plt
 from .plot_functions import plot_values_distribution, plot_error_distribution, plot_errors_threshold, plot_visual_sample
 
 
-def map_plot_function(dataset, predictions, plot_function, plot_kwargs={}, labels=None, time_limit=None):
+def map_plot_function(dataset, predictions, plot_function, plot_kwargs={}, dataset_indices=None, labels=None, time_limit=None):
 
     labels = labels or dataset.labels['X']
     time_limit = time_limit or dataset._y.shape[1]
+    if dataset_indices is not None:
+        dataset_y = dataset._y[dataset_indices].numpy()
+    else:
+        dataset_y = dataset._y.numpy()
 
     # Create subplots
     fig, axes = plt.subplots(len(labels), 1)
@@ -24,7 +28,7 @@ def map_plot_function(dataset, predictions, plot_function, plot_kwargs={}, label
 
         # Select data for time period and label
         y_pred = predictions[:, :time_limit, idx_label]
-        y_true = dataset._y[:, :time_limit, idx_label].numpy()
+        y_true = dataset_y[:, :time_limit, idx_label]
 
         # Rescale data
         y_pred = dataset.rescale(y_pred, idx_label)
