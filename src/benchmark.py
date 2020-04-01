@@ -28,7 +28,7 @@ class LSTM(nn.Module):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout)
+        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True)
         self.linear = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -43,10 +43,8 @@ class LSTM(nn.Module):
         -------
             Output tensor with shape (m, K, output_dim)
         """
-        x.transpose_(1, 0)
         rnn_out, _ = self.rnn(x)
         output = self.linear(rnn_out)
-        output.transpose_(1, 0)
         return output
 
 class BiGRU(LSTM):
