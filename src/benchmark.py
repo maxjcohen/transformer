@@ -17,6 +17,8 @@ class LSTM(nn.Module):
         Number of LSTM layers.
     dropout:
         Dropout value. Default is ``0``.
+    bidirectional:
+        If ``True``, becomes a bidirectional LSTM. Default: ``False``.
     """
 
     def __init__(self,
@@ -25,10 +27,14 @@ class LSTM(nn.Module):
                  output_dim: int,
                  num_layers: int,
                  dropout: float = 0,
+                 bidirectional: bool = False,
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True)
+        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True, bidirectional=bidirectional)
+
+        if bidirectional:
+            hidden_dim *= 2
         self.linear = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -47,6 +53,7 @@ class LSTM(nn.Module):
         output = self.linear(rnn_out)
         return output
 
+
 class BiGRU(LSTM):
     """Benchmark Bidirictionnal GRU.
 
@@ -62,6 +69,8 @@ class BiGRU(LSTM):
         Number of GRU layers.
     dropout:
         Dropout value. Default is ``0``.
+    bidirectional:
+        If ``True``, becomes a bidirectional GRU. Default: ``True``.
     """
 
     def __init__(self,
@@ -70,7 +79,8 @@ class BiGRU(LSTM):
                  output_dim: int,
                  num_layers: int,
                  dropout: float = 0,
+                 bidirectional: bool = False,
                  **kwargs):
-        super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, **kwargs)
+        super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, bidirectional, **kwargs)
 
-        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, bidirectional=True)
+        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, bidirectional=bidirectional)
