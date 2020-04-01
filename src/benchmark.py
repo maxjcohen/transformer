@@ -83,4 +83,4 @@ class BiGRU(LSTM):
                  **kwargs):
         super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, bidirectional, **kwargs)
 
-        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, bidirectional=bidirectional)
+        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True, bidirectional=bidirectional)
