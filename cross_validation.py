@@ -58,7 +58,7 @@ with tqdm(total=CHUNKS*EPOCHS) as pbar:
         # Load transformer with Adam optimizer and MSE loss function
         # net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
         #                   dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
-        net = BiGRU(d_input, d_model, d_output, num_layers=N, dropout=dropout, bidirectional=True)
+        net = BiGRU(d_input, d_model, d_output, num_layers=N, dropout=dropout, bidirectional=True).to(device)
 
         optimizer = optim.Adam(net.parameters(), lr=LR)
 
