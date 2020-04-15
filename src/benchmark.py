@@ -123,3 +123,31 @@ class ConvGru(nn.Module):
         x = self.rnn(x)
 
         return x
+
+
+class FullyConv(nn.Module):
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int,
+                 dropout: float = 0,
+                 **kwargs):
+        super().__init__(**kwargs)
+
+        self.conv1 = nn.Conv1d(in_channels=input_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
+        self.conv2 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
+        self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=output_dim, kernel_size=11, stride=1, padding=11//2)
+
+        self.activation = nn.LeakyReLU(0.1)
+
+    def forward(self, x):
+        x = x.transpose(1, 2)
+        x = self.conv1(x)
+        x = self.activation(x)
+        x = self.conv2(x)
+        x = self.activation(x)
+        x = self.conv3(x)
+        x = self.activation(x)
+        x = x.transpose(1, 2)
+
+        return x
