@@ -50,7 +50,7 @@ def plot_values_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
 
 
 def plot_error_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
-    diff = np.abs(y_true-y_pred)
+    diff = y_true-y_pred
     plot_errorbar(y=diff, ax=ax, color='black', ls='dotted',
                   marker='s', markeredgecolor='black', markerfacecolor='white', markeredgewidth=2, linewidth=2, label='mean')
     sns.stripplot(data=diff, linewidth=0, color='orange',
