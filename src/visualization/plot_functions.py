@@ -30,6 +30,16 @@ def plot_errors_threshold(y_true, y_pred, ax, error_band=0.1, unit='', **kwargs)
 
     return threshold_initial
 
+def plot_dataset_distribution(x, ax, alpha=0.4, unit='', **kwargs):
+    plot_errorbar(y=x, ax=ax, color='black', ls='dotted',
+                marker='s', markeredgecolor='black', markerfacecolor='white', markeredgewidth=2, linewidth=2)
+
+    sns.stripplot(data=x, linewidth=0, color='b',
+                alpha=alpha, zorder=1, marker='.', s=8, ax=ax)
+
+    ax.set_xlabel('time (hour)')
+    ax.legend()
+
 
 def plot_values_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
     plot_errorbar(y=y_true, ax=ax, color='darkgreen', ls='dotted',
