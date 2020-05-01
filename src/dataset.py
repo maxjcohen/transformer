@@ -24,7 +24,7 @@ class OzeDataset(Dataset):
         Path to the labels, divided in R, Z and X, in json format.
         Default is "labels.json".
     normalize:
-        Data normalization method, one of ``'mean'``, ``'max'``.
+        Data normalization method, one of ``'mean'``, ``'max'`` or ``None``.
         Default is ``'max'``.
     """
 
@@ -80,6 +80,8 @@ class OzeDataset(Dataset):
             self._M = np.max(self._y, axis=(0, 1))
             self._m = np.min(self._y, axis=(0, 1))
             self._y = (self._y - self._m) / (self._M - self._m + np.finfo(float).eps)
+        elif self._normalize is None:
+            pass
         else:
             raise(
                 NameError(f'Normalize method "{self._normalize}" not understood.'))
