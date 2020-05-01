@@ -84,3 +84,8 @@ def map_plot_function(dataset, predictions, plot_function, plot_kwargs={}, datas
         plot_function(y_true, y_pred, ax, **plot_kwargs, unit=unit)
 
         ax.set_title(label)
+
+        n_ticks = time_limit // 24
+        for idx, label in enumerate(ax.get_xticklabels()):
+            if idx % n_ticks:
+                label.set_visible(False)
