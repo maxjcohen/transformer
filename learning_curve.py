@@ -13,7 +13,7 @@ import torch.optim as optim
 from tqdm import tqdm
 
 from src.dataset import OzeDataset
-from src.utils import Logger, fit, leargnin_curve  # compute_loss, kfold, visual_sample
+from src.utils import Logger, fit, learning_curve  # compute_loss, kfold, visual_sample
 
 # Search parameters
 PARTS = 8
@@ -55,7 +55,7 @@ loss_function = OZELoss(alpha=0.3)
 
 logger = Logger('learningcurve_log.csv')
 
-learningcurveIterator = leargnin_curve(ozeDataset, n_part=PARTS, validation_split=VALIDATION_SPLIT,
+learningcurveIterator = learning_curve(ozeDataset, n_part=PARTS, validation_split=VALIDATION_SPLIT,
                       batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
 
 with tqdm(total=PARTS*EPOCHS) as pbar:
