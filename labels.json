@@ -21,7 +21,6 @@
         "ventilation_mask",
         "occupancy",
         "pc_on_mask",
-        "lights_on_mask",
         "DNI",
         "IBEAM_H",
         "IBEAM_N",
@@ -45,10 +44,10 @@
         "facade_3_window_area_percent",
         "facade_4_thickness_2",
         "facade_4_window_area_percent",
-        "roof_1_thickness_3",
+        "roof_thickness_2",
+        "ground_thickness_2",
         "init_day",
         "init_month",
-        "init_year",
-        "initial_temperature"
+        "init_year"
     ]
 }
