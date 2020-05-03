@@ -63,7 +63,7 @@ class MultiHeadAttention(nn.Module):
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
-        followed by the Scaled Dot-Product. The result is concatenated 
+        followed by the Scaled Dot-Product. The result is concatenated
         and returned with shape (batch_size, K, d_model).
 
         Parameters
@@ -94,9 +94,11 @@ class MultiHeadAttention(nn.Module):
 
         # Compute local map mask
         if self._attention_size is not None:
-            attention_mask = generate_local_map_mask(K, self._attention_size, self._scores.device)
-            
-            self._scores = self._scores.masked_fill(attention_mask, float('-inf'))
+            attention_mask = generate_local_map_mask(
+                K, self._attention_size, self._scores.device)
+
+            self._scores = self._scores.masked_fill(
+                attention_mask, float('-inf'))
 
         # Compute future mask
         if mask == "subsequent":
@@ -150,7 +152,8 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         Number of backward elements to apply attention.
         Deactivated if ``None``. Default is ``None``.
     chunk_size:
-        Size of chunks to apply attention on. Last one may be smaller (see :class:`torch.Tensor.chunk`).
+        Size of chunks to apply attention on.
+        Last one may be smaller (see :class:`torch.Tensor.chunk`).
         Default is 168.
     """
 
@@ -168,12 +171,12 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         self._chunk_size = chunk_size
 
         # Score mask for decoder
-        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._chunk_size, self._chunk_size)), diagonal=1).bool(),
-                                         requires_grad=False)
+        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._chunk_size, \
+            self._chunk_size)), diagonal=1).bool(), requires_grad=False)
 
         if self._attention_size is not None:
-            self._attention_mask = nn.Parameter(generate_local_map_mask(self._chunk_size, self._attention_size),
-                                                requires_grad=False)
+            self._attention_mask = nn.Parameter(generate_local_map_mask(self._chunk_size, \
+                self._attention_size), requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
@@ -183,7 +186,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
-        followed by the Scaled Dot-Product. The result is concatenated 
+        followed by the Scaled Dot-Product. The result is concatenated
         and returned with shape (batch_size, K, d_model).
 
         Parameters
@@ -206,20 +209,26 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         n_chunk = K // self._chunk_size
 
         # Compute Q, K and V, concatenate heads on batch dimension
-        queries = torch.cat(torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
-        keys = torch.cat(torch.cat(self._W_k(key).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
-        values = torch.cat(torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
+        queries = torch.cat(torch.cat(self._W_q(query).chunk(
+            self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
+        keys = torch.cat(torch.cat(self._W_k(key).chunk(
+            self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
+        values = torch.cat(torch.cat(self._W_v(value).chunk(
+            self._h, dim=-1), dim=0).chunk(n_chunk, dim=1), dim=0)
 
         # Scaled Dot Product
-        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._chunk_size)
+        self._scores = torch.bmm(queries, keys.transpose(
+            1, 2)) / np.sqrt(self._chunk_size)
 
         # Compute local map mask
         if self._attention_size is not None:
-            self._scores = self._scores.masked_fill(self._attention_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(
+                self._attention_mask, float('-inf'))
 
         # Compute future mask
         if mask == "subsequent":
-            self._scores = self._scores.masked_fill(self._future_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(
+                self._future_mask, float('-inf'))
 
         # Apply softmax
         self._scores = F.softmax(self._scores, dim=-1)
@@ -286,12 +295,12 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         self._step = self._window_size - 2 * self._padding
 
         # Score mask for decoder
-        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._window_size, self._window_size)), diagonal=1).bool(),
-                                         requires_grad=False)
+        self._future_mask = nn.Parameter(torch.triu(torch.ones((self._window_size, \
+            self._window_size)), diagonal=1).bool(), requires_grad=False)
 
         if self._attention_size is not None:
-            self._attention_mask = nn.Parameter(generate_local_map_mask(self._window_size, self._attention_size),
-                                                requires_grad=False)
+            self._attention_mask = nn.Parameter(generate_local_map_mask( \
+                self._window_size, self._attention_size), requires_grad=False)
 
     def forward(self,
                 query: torch.Tensor,
@@ -301,7 +310,7 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         """Propagate forward the input through the MHB.
 
         We compute for each head the queries, keys and values matrices,
-        followed by the Scaled Dot-Product. The result is concatenated 
+        followed by the Scaled Dot-Product. The result is concatenated
         and returned with shape (batch_size, K, d_model).
 
         Parameters
@@ -323,9 +332,12 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         batch_size = query.shape[0]
 
         # Apply padding to input sequence
-        query = F.pad(query.transpose(1, 2), (self._padding, self._padding), 'replicate').transpose(1, 2)
-        key = F.pad(key.transpose(1, 2), (self._padding, self._padding), 'replicate').transpose(1, 2)
-        value = F.pad(value.transpose(1, 2), (self._padding, self._padding), 'replicate').transpose(1, 2)
+        query = F.pad(query.transpose(1, 2), (self._padding,
+                                              self._padding), 'replicate').transpose(1, 2)
+        key = F.pad(key.transpose(1, 2), (self._padding,
+                                          self._padding), 'replicate').transpose(1, 2)
+        value = F.pad(value.transpose(1, 2), (self._padding,
+                                              self._padding), 'replicate').transpose(1, 2)
 
         # Compute Q, K and V, concatenate heads on batch dimension
         queries = torch.cat(self._W_q(query).chunk(self._h, dim=-1), dim=0)
@@ -333,20 +345,26 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         values = torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0)
 
         # Divide Q, K and V using a moving window
-        queries = queries.unfold(dimension=1, size=self._window_size, step=self._step).reshape((-1, self._q, self._window_size)).transpose(1, 2)
-        keys = keys.unfold(dimension=1, size=self._window_size, step=self._step).reshape((-1, self._q, self._window_size)).transpose(1, 2)
-        values = values.unfold(dimension=1, size=self._window_size, step=self._step).reshape((-1, self._v, self._window_size)).transpose(1, 2)
+        queries = queries.unfold(dimension=1, size=self._window_size, step=self._step).reshape(
+            (-1, self._q, self._window_size)).transpose(1, 2)
+        keys = keys.unfold(dimension=1, size=self._window_size, step=self._step).reshape(
+            (-1, self._q, self._window_size)).transpose(1, 2)
+        values = values.unfold(dimension=1, size=self._window_size, step=self._step).reshape(
+            (-1, self._v, self._window_size)).transpose(1, 2)
 
         # Scaled Dot Product
-        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(self._window_size)
+        self._scores = torch.bmm(queries, keys.transpose(
+            1, 2)) / np.sqrt(self._window_size)
 
         # Compute local map mask
         if self._attention_size is not None:
-            self._scores = self._scores.masked_fill(self._attention_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(
+                self._attention_mask, float('-inf'))
 
         # Compute future mask
         if mask == "subsequent":
-            self._scores = self._scores.masked_fill(self._future_mask, float('-inf'))
+            self._scores = self._scores.masked_fill(
+                self._future_mask, float('-inf'))
 
         # Apply softmax
         self._scores = F.softmax(self._scores, dim=-1)
@@ -354,7 +372,8 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         attention = torch.bmm(self._scores, values)
 
         # Fold chunks back
-        attention = attention.reshape((batch_size*self._h, -1, self._window_size, self._v))
+        attention = attention.reshape(
+            (batch_size*self._h, -1, self._window_size, self._v))
         attention = attention[:, :, self._padding:-self._padding, :]
         attention = attention.reshape((batch_size*self._h, -1, self._v))
 
