@@ -1,15 +1,18 @@
-import numpy as np
+"""
+Cross validation
+"""
+# from test import Transformer
+from test.loss import OZELoss
+
+# import numpy as np
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 
-from tst import Transformer
-from tst.loss import OZELoss
-
+from src.benchmark import BiGRU  # , LSTM
 from src.dataset import OzeDataset
-from src.utils import compute_loss, fit, Logger, kfold
-from src.benchmark import LSTM, BiGRU
+from src.utils import Logger, fit, kfold  # compute_loss
 
 # Search parameters
 CHUNKS = 5
@@ -58,7 +61,8 @@ with tqdm(total=CHUNKS*EPOCHS) as pbar:
         # Load transformer with Adam optimizer and MSE loss function
         # net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
         #                   dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
-        net = BiGRU(d_input, d_model, d_output, num_layers=N, dropout=dropout, bidirectional=True).to(device)
+        net = BiGRU(d_input, d_model, d_output, num_layers=N, dropout=dropout, \
+            bidirectional=True).to(device)
 
         optimizer = optim.Adam(net.parameters(), lr=LR)
 

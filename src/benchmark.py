@@ -1,3 +1,6 @@
+"""
+Benchmark
+"""
 import torch
 import torch.nn as nn
 
@@ -31,7 +34,8 @@ class LSTM(nn.Module):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True, bidirectional=bidirectional)
+        self.rnn = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, \
+            batch_first=True, bidirectional=bidirectional)
 
         if bidirectional:
             hidden_dim *= 2
@@ -87,6 +91,9 @@ class BiGRU(LSTM):
 
 
 class ConvGru(nn.Module):
+    """
+    ConvGru
+    """    
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -126,6 +133,9 @@ class ConvGru(nn.Module):
 
 
 class FullyConv(nn.Module):
+    """
+    FullyConv
+    """
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,

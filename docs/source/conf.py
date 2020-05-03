@@ -13,7 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../tst/'))
+sys.path.insert(0, os.path.abspath('../../test/'))
 
 master_doc = 'index'
 

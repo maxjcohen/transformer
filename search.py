@@ -1,20 +1,22 @@
+"""
+Search
+"""
 import itertools
-import datetime
-import json
+# import datetime
+# import json
 from collections import OrderedDict
+from test import Transformer
+from test.loss import OZELoss
 
 import numpy as np
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-from tst import Transformer
-from tst.loss import OZELoss
-
 from src.dataset import OzeDataset
-from src.utils import compute_loss, fit, Logger
+from src.utils import Logger, fit  # , compute_loss
 
 # ===== user set params ====
 search_params = OrderedDict({

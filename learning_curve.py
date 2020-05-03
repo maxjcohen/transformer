@@ -1,17 +1,19 @@
-import numpy as np
-from matplotlib import pyplot as plt
+"""
+Learning curve
+"""
+from test import Transformer
+from test.loss import OZELoss
+
+import seaborn as sns
+# import numpy as np
+# from matplotlib import pyplot as plt
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-import seaborn as sns
-
-from tst import Transformer
-from tst.loss import OZELoss
 
 from src.dataset import OzeDataset
-from src.utils import visual_sample, compute_loss
-from src.utils import compute_loss, fit, Logger, kfold, leargnin_curve
+from src.utils import Logger, fit, leargnin_curve  # compute_loss, kfold, visual_sample
 
 # Search parameters
 PARTS = 8

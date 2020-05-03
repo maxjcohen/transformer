@@ -1,9 +1,13 @@
+"""
+Search
+"""
 import csv
 
-import torch
+# import torch
 import numpy as np
 from torch.utils.data import DataLoader, Subset, random_split
 
+# FIXME It looks there is something deadly wrong here!
 from src.utils.utils import compute_loss
 
 def fit(net, optimizer, loss_function, dataloader_train, dataloader_val, epochs=10, pbar=None, device='cpu'):

@@ -1,3 +1,6 @@
+"""
+Dataset
+"""
 import json
 from typing import Optional
 
@@ -103,7 +106,8 @@ class OzeDataset(Dataset):
             Index of the output label.
         """
         if self._normalize == "max":
-            return y * (self._M[idx_label] - self._m[idx_label] + np.finfo(float).eps) + self._m[idx_label]
+            return y * (self._M[idx_label] - self._m[idx_label] + np.finfo(float).eps) + \
+                self._m[idx_label]
         elif self._normalize == "mean":
             return y * (self._std[idx_label] + np.finfo(float).eps) + self._mean[idx_label]
         else:
