@@ -70,7 +70,7 @@ class Encoder(nn.Module):
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
 
-        self._dopout = nn.Dropout(p=dropout)
+        self._dropout = nn.Dropout(p=dropout)
 
     # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -91,13 +91,13 @@ class Encoder(nn.Module):
         # Self attention
         residual = x
         x = self._selfAttention(query=x, key=x, value=x)
-        x = self._dopout(x)
+        x = self._dropout(x)
         x = self._layerNorm1(x + residual)
 
         # Feed forward
         residual = x
         x = self._feedForward(x)
-        x = self._dopout(x)
+        x = self._dropout(x)
         x = self._layerNorm2(x + residual)
 
         return x
