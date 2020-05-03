@@ -1,5 +1,5 @@
 """
-Create dataset.npz from x and y train .csv files. 
+Create dataset.npz from x and y train .csv files.
 """
 from src.utils.csv2npz import csv2npz
 
