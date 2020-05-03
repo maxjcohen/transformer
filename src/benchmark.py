@@ -24,6 +24,7 @@ class LSTM(nn.Module):
         If ``True``, becomes a bidirectional LSTM. Default: ``False``.
     """
 
+    # NOTE Too many arguments (7/5)pylint(too-many-arguments)
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -41,6 +42,7 @@ class LSTM(nn.Module):
             hidden_dim *= 2
         self.linear = nn.Linear(hidden_dim, output_dim)
 
+    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through the network.
 
@@ -85,15 +87,18 @@ class BiGRU(LSTM):
                  dropout: float = 0,
                  bidirectional: bool = False,
                  **kwargs):
-        super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, bidirectional, **kwargs)
+        super().__init__(input_dim, hidden_dim, output_dim, num_layers, dropout, bidirectional, \
+            **kwargs)
 
-        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True, bidirectional=bidirectional)
+        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, \
+            batch_first=True, bidirectional=bidirectional)
 
 
 class ConvGru(nn.Module):
     """
     ConvGru
-    """    
+    """
+    # NOTE Too many arguments (7/5)pylint(too-many-arguments)
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -104,9 +109,12 @@ class ConvGru(nn.Module):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.conv1 = nn.Conv1d(in_channels=input_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
-        self.conv2 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
-        self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
+        self.conv1 = nn.Conv1d(in_channels=input_dim, out_channels=hidden_dim, \
+            kernel_size=11, stride=1, padding=11//2)
+        self.conv2 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, \
+            kernel_size=11, stride=1, padding=11//2)
+        self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, \
+            kernel_size=11, stride=1, padding=11//2)
 
         self.activation = nn.LeakyReLU(0.1)
 
@@ -117,6 +125,7 @@ class ConvGru(nn.Module):
                          dropout=dropout,
                          bidirectional=bidirectional)
 
+    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
     def forward(self, x):
         x = x.transpose(1, 2)
         x = self.conv1(x)
@@ -140,16 +149,21 @@ class FullyConv(nn.Module):
                  input_dim: int,
                  hidden_dim: int,
                  output_dim: int,
+                 # NOTE Unused argument 'dropout'pylint(unused-argument)
                  dropout: float = 0,
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.conv1 = nn.Conv1d(in_channels=input_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
-        self.conv2 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, kernel_size=11, stride=1, padding=11//2)
-        self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=output_dim, kernel_size=11, stride=1, padding=11//2)
+        self.conv1 = nn.Conv1d(in_channels=input_dim, out_channels=hidden_dim, \
+            kernel_size=11, stride=1, padding=11//2)
+        self.conv2 = nn.Conv1d(in_channels=hidden_dim, out_channels=hidden_dim, \
+            kernel_size=11, stride=1, padding=11//2)
+        self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=output_dim, \
+            kernel_size=11, stride=1, padding=11//2)
 
         self.activation = nn.LeakyReLU(0.1)
 
+    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
     def forward(self, x):
         x = x.transpose(1, 2)
         x = self.conv1(x)

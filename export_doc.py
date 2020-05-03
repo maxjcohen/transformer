@@ -6,7 +6,7 @@ import datetime
 from pathlib import Path
 import argparse
 
-
+# NOTE Redefining name 'notebook_path' from outer scope (line 39)pylint(redefined-outer-name)
 def export_notebook(notebook_path: Path, export_dir: Path):
     # Load notebook
     with open(notebook_path, "r") as stream_json:
@@ -21,6 +21,7 @@ def export_notebook(notebook_path: Path, export_dir: Path):
 
     # Add date to export path
     export_name = f'training_{export_time.strftime("%Y_%m_%d__%H%M%S")}.ipynb'
+    # NOTE Redefining name 'export_path' from outer scope (line 40)pylint(redefined-outer-name)
     export_path = export_dir.joinpath(export_name)
 
     # Export

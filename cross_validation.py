@@ -1,9 +1,6 @@
 """
 Cross validation
 """
-# from test import Transformer
-from test.loss import OZELoss
-
 # import numpy as np
 import torch
 # import torch.nn as nn
@@ -13,6 +10,8 @@ from tqdm import tqdm
 from src.benchmark import BiGRU  # , LSTM
 from src.dataset import OzeDataset
 from src.utils import Logger, fit, kfold  # compute_loss
+# from test import Transformer
+from tst.loss import OZELoss
 
 # Search parameters
 CHUNKS = 5

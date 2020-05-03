@@ -6,8 +6,11 @@ import seaborn as sns
 
 from .utils import plot_errorbar
 
-
+# NOTE Unused argument 'kwargs'pylint(unused-argument)
 def plot_errors_threshold(y_true, y_pred, ax, error_band=0.1, unit='', **kwargs):
+    """
+    plot_errors_threshold
+    """
     threshold_initial = max(
         np.sort(np.abs(y_true-y_pred), axis=0)[int(y_true.shape[0]*(1 - error_band))])
     threshold_range = np.linspace(
@@ -33,18 +36,26 @@ def plot_errors_threshold(y_true, y_pred, ax, error_band=0.1, unit='', **kwargs)
 
     return threshold_initial
 
+# NOTE Unused argument 'kwargs'pylint(unused-argument)
+# Unused argument 'unit'pylint(unused-argument)
 def plot_dataset_distribution(x, ax, alpha=0.4, unit='', **kwargs):
-    plot_errorbar(y=x, ax=ax, color='black', ls='dotted',
-                marker='s', markeredgecolor='black', markerfacecolor='white', markeredgewidth=2, linewidth=2)
+    """
+    plot_dataset_distribution
+    """
+    plot_errorbar(y=x, ax=ax, color='black', ls='dotted', marker='s', markeredgecolor='black', \
+        markerfacecolor='white', markeredgewidth=2, linewidth=2)
 
-    sns.stripplot(data=x, linewidth=0, color='b',
-                alpha=alpha, zorder=1, marker='.', s=8, ax=ax)
+    sns.stripplot(data=x, linewidth=0, color='b', \
+        alpha=alpha, zorder=1, marker='.', s=8, ax=ax)
 
     ax.set_xlabel('time (hour)')
     ax.legend()
 
-
+# NOTE Unused argument 'kwargs'pylint(unused-argument)
 def plot_values_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
+    """
+    plot_values_distribution
+    """
     plot_errorbar(y=y_true, ax=ax, color='darkgreen', ls='dotted',
                   marker='s', markeredgecolor='darkgreen', markerfacecolor='white', markeredgewidth=2, linewidth=2, label='true mean')
 
@@ -63,6 +74,9 @@ def plot_values_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
 
 
 def plot_error_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
+    """
+    plot_error_distribution
+    """
     diff = y_true-y_pred
     plot_errorbar(y=diff, ax=ax, color='black', ls='dotted',
                   marker='s', markeredgecolor='black', markerfacecolor='white', markeredgewidth=2, linewidth=2, label='mean')
@@ -75,6 +89,9 @@ def plot_error_distribution(y_true, y_pred, ax, alpha=0.4, unit='', **kwargs):
 
 
 def plot_visual_sample(y_true, y_pred, ax, unit='', **kwargs):
+    """
+    plot_visual_sample
+    """
     # Select training example
     idx = np.random.randint(0, y_true.shape[0])
     y_true = y_true[idx]

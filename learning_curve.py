@@ -1,19 +1,15 @@
 """
 Learning curve
 """
-from test import Transformer
-from test.loss import OZELoss
-
 import seaborn as sns
-# import numpy as np
-# from matplotlib import pyplot as plt
 import torch
-# import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 
 from src.dataset import OzeDataset
-from src.utils import Logger, fit, learning_curve  # compute_loss, kfold, visual_sample
+from src.utils import Logger, fit, learning_curve
+from tst import Transformer
+from tst.loss import OZELoss
 
 # Search parameters
 PARTS = 8
@@ -55,11 +51,11 @@ loss_function = OZELoss(alpha=0.3)
 
 logger = Logger('learningcurve_log.csv')
 
-learningcurveIterator = learning_curve(ozeDataset, n_part=PARTS, validation_split=VALIDATION_SPLIT,
-                      batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+learning_curve_iterator = learning_curve(ozeDataset, n_part=PARTS, \
+    validation_split=VALIDATION_SPLIT, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
 
 with tqdm(total=PARTS*EPOCHS) as pbar:
-    for dataloader_train, dataloader_val in learningcurveIterator:
+    for dataloader_train, dataloader_val in learning_curve_iterator:
 
         # Load transformer with Adam optimizer and MSE loss function
         net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
