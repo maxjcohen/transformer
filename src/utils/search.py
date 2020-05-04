@@ -6,16 +6,14 @@ import csv
 # import torch
 import numpy as np
 from torch.utils.data import DataLoader, Subset, random_split
-
-from utils import compute_loss
-
+from .utils import compute_loss
 
 def fit(net, optimizer, loss_function, dataloader_train, dataloader_val, epochs=10, pbar=None, device='cpu'):
     val_loss_best = np.inf
 
     # Prepare loss history
-    for idx_epoch in range(epochs):
-        for idx_batch, (x, y) in enumerate(dataloader_train):
+    for _ in range(epochs):
+        for _, (x, y) in enumerate(dataloader_train):
             optimizer.zero_grad()
 
             # Propagate input
@@ -101,11 +99,13 @@ class Logger:
     Logger class
     """
 
+    # NOTE Dangerous default value [] as argumentpylint(dangerous-default-value)
     def __init__(self, csv_path, search_params=[]):
         self.csv_file = open(csv_path, 'w')
         self.writer = csv.DictWriter(self.csv_file, search_params + ['loss'])
         self.writer.writeheader()
 
+    # NOTE Dangerous default value {} as argumentpylint(dangerous-default-value)
     def log(self, params={}, **kwargs):
         """
         log method
