@@ -3,3 +3,4 @@ jupyterlab
 matplotlib
 seaborn
 tqdm
+pylint
