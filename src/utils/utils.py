@@ -1,11 +1,8 @@
 """
 Utils
 """
-# import csv
 
 import torch
-# import numpy as np
-
 
 def compute_loss(net: torch.nn.Module,
                  dataloader: torch.utils.data.DataLoader,

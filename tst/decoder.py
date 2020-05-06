@@ -1,7 +1,8 @@
 """
-Decoder
+Decoder.py
+This script hosts the Decoder class.
+It performs the Decoder block from Attention is All You Need.
 """
-# import numpy as np
 import torch
 import torch.nn as nn
 

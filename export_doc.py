@@ -1,15 +1,17 @@
 """
 Export doc
+This script defines the export_notebook method.
+It gets the original title of the notebook and adds date.
+Finally it exports to export_path.
 """
 import json
 import datetime
 from pathlib import Path
 import argparse
 
-# NOTE Redefining name 'notebook_path' from outer scope (line 39)pylint(redefined-outer-name)
-def export_notebook(notebook_path: Path, export_dir: Path):
+def export_notebook(given_notebook_path: Path, export_dir: Path):
     # Load notebook
-    with open(notebook_path, "r") as stream_json:
+    with open(given_notebook_path, "r") as stream_json:
         notebook = json.load(stream_json)
 
     # Get original title
@@ -21,11 +23,10 @@ def export_notebook(notebook_path: Path, export_dir: Path):
 
     # Add date to export path
     export_name = f'training_{export_time.strftime("%Y_%m_%d__%H%M%S")}.ipynb'
-    # NOTE Redefining name 'export_path' from outer scope (line 40)pylint(redefined-outer-name)
-    export_path = export_dir.joinpath(export_name)
+    the_export_path = export_dir.joinpath(export_name)
 
     # Export
-    with open(export_path, "w") as stream_json:
+    with open(the_export_path, "w") as stream_json:
         json.dump(notebook, stream_json)
 
 

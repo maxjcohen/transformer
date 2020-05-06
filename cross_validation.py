@@ -1,9 +1,8 @@
 """
-Cross validation
+Cross validation.
+This script performs k-fold cross validation using a Bidirictionnal GRU.
 """
-# import numpy as np
 import torch
-# import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 

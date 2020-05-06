@@ -53,6 +53,7 @@ class Transformer(nn.Module):
         Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
     """
 
+    # NOTE Too many arguments (12/5)pylint(too-many-arguments)
     def __init__(self,
                  d_input: int,
                  d_model: int,

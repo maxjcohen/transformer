@@ -1,5 +1,7 @@
 """
 Learning curve
+This script loads the transformer with Adam optimizer and MSE loss function.
+It then performs the transformer training and validation process.
 """
 import seaborn as sns
 import torch
