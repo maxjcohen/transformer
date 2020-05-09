@@ -42,7 +42,8 @@ The dataset is not included in this repo, and must be downloaded manually. It is
 Using jupyter, run the default `training.ipynb` notebook. All adjustable parameters can be found in the second cell. Careful with the `BATCH_SIZE`, as we are using it to parallelize head and time chunk calculations. 
 
 ### Outside usage
-The `Transformer` class can be used out of the box, [docs](https://timeseriestransformer.readthedocs.io/en/latest/Transformer.html) for more info.
+
+The `Transformer` class can be used out of the box, see the [docs](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) for more info.
 
 ```python
 from tst import Transformer
