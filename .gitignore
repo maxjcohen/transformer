@@ -24,3 +24,6 @@ _build
 # Figures
 *.png
 *.jpg
+
+# Logs
+log

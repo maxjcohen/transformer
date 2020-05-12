@@ -1,4 +1,6 @@
 import csv
+from pathlib import Path
+import datetime
 
 import torch
 import numpy as np
@@ -81,15 +83,23 @@ def leargnin_curve(dataset, n_part, validation_split, batch_size, num_workers):
         yield dataloader_train, dataloader_val
 
 class Logger:
-    def __init__(self, csv_path, search_params=[]):
-        self.csv_file = open(csv_path, 'w')
-        self.writer = csv.DictWriter(self.csv_file, search_params + ['loss'])
-        self.writer.writeheader()
-        
-    def log(self, params={}, **kwargs):
-        params.update(kwargs)
-        self.writer.writerow(params)
+    def __init__(self, csv_path, params=[]):
+        csv_path = Path(csv_path)
+
+        if csv_path.is_file():
+            self.csv_file = open(csv_path, 'a')
+            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+        else:
+            self.csv_file = open(csv_path, 'w')
+            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+            self.writer.writeheader()
+
+    def log(self, **kwargs):
+        kwargs.update({
+            'date': datetime.datetime.now().isoformat()
+        })
+        self.writer.writerow(kwargs)
         self.csv_file.flush()
-        
+
     def __del__(self):
         self.csv_file.close()
