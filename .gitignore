@@ -26,4 +26,4 @@ _build
 *.jpg
 
 # Logs
-log
+logs
