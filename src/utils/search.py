@@ -83,20 +83,23 @@ def leargnin_curve(dataset, n_part, validation_split, batch_size, num_workers):
         yield dataloader_train, dataloader_val
 
 class Logger:
-    def __init__(self, csv_path, params=[]):
+    def __init__(self, csv_path, model_name='undefined', params=[]):
         csv_path = Path(csv_path)
 
         if csv_path.is_file():
             self.csv_file = open(csv_path, 'a')
-            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+            self.writer = csv.DictWriter(self.csv_file, ['date', 'model'] + params)
         else:
             self.csv_file = open(csv_path, 'w')
-            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+            self.writer = csv.DictWriter(self.csv_file, ['date', 'model'] + params)
             self.writer.writeheader()
+
+        self.model_name = model_name
 
     def log(self, **kwargs):
         kwargs.update({
-            'date': datetime.datetime.now().isoformat()
+            'date': datetime.datetime.now().isoformat(),
+            'model': self.model_name
         })
         self.writer.writerow(kwargs)
         self.csv_file.flush()

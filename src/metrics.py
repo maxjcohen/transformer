@@ -1,15 +1,19 @@
 import torch
 
-def MSE(y_true, y_pred, occupation=None):
+def MSE(y_true, y_pred, occupation=None, idx_label=None):
+    # Select output labels
+    idx_label = idx_label or torch.arange(y_true.shape[-1])
+
     # Compute squared difference
-    diff = torch.pow(y_true-y_pred, 2)
+    diff = torch.pow(y_true[..., idx_label]-y_pred[..., idx_label], 2)
     
     if occupation is not None:
         # Add dimension for broacasting
-        occupation.unsqueeze_(-1)
+        occupation = occupation.unsqueeze(-1)
 
         # Mask with occupation
         diff = diff * occupation
     
     # Return reduced sum
-    return torch.sum(diff) / torch.prod(torch.Tensor([*y_true.shape]))
+    output = torch.sum(diff) / torch.prod(torch.Tensor([*y_true.shape]))
+    return output.item()
