@@ -14,6 +14,5 @@ def MSE(y_true, y_pred, occupation=None, idx_label=None):
         # Mask with occupation
         diff = diff * occupation
     
-    # Return reduced sum
-    output = torch.sum(diff) / torch.prod(torch.Tensor([*y_true.shape]))
-    return output.item()
+    # Return reduced sum and std
+    return torch.mean(diff).item(), torch.std(diff).item()

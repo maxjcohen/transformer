@@ -76,16 +76,20 @@ loss_function = OZELoss(alpha=0.3)
 
 logger = Logger(f'logs/training.csv', model_name='transformer', params=['training_loss',
                                                                         'mse_tint_total',
+                                                                        'mse_tint_total_std',
                                                                         'mse_cold_total',
+                                                                        'mse_cold_total_std',
                                                                         'mse_tint_occupation',
+                                                                        'mse_tint_occupation_std',
                                                                         'mse_cold_occupation',
+                                                                        'mse_cold_occupation_std',
                                                                         'r2_tint',
                                                                         'r2_cold'])
 
 # Fit model
 with tqdm(total=EPOCHS) as pbar:
     loss = fit(net, optimizer, loss_function, dataloader_train,
-            dataloader_val, epochs=EPOCHS, device=device)
+               dataloader_val, epochs=EPOCHS, device=device)
 
 # Switch to evaluation
 _ = net.eval()
@@ -110,15 +114,15 @@ occupation = ozeDataset._x[dataloader_test.dataset.indices,
 training_loss = loss_function(y_true, predictions).item()
 
 # MSE losses
-mse_tint_total = MSE(y_true, predictions, idx_label=[-1])
-mse_cold_total = MSE(y_true, predictions, idx_label=[0])
+mse_tint_total, mse_tint_total_std = MSE(y_true, predictions, idx_label=[-1])
+mse_cold_total, mse_cold_total_std = MSE(y_true, predictions, idx_label=[0])
 
-mse_tint_occupation = MSE(y_true, predictions,
-                          idx_label=[-1],
-                          occupation=occupation)
-mse_cold_occupation = MSE(y_true, predictions,
-                          idx_label=[0],
-                          occupation=occupation)
+mse_tint_occupation, mse_tint_occupation_std = MSE(y_true, predictions,
+                                                   idx_label=[-1],
+                                                   occupation=occupation)
+mse_cold_occupation, mse_cold_occupation_std = MSE(y_true, predictions,
+                                                   idx_label=[0],
+                                                   occupation=occupation)
 
 # R2 score
 r2_tint = r2_score(y_true[..., -1], predictions[..., -1])
@@ -128,9 +132,13 @@ r2_cold = r2_score(y_true[..., 0], predictions[..., 0])
 logger.log(
     training_loss=training_loss,
     mse_tint_total=mse_tint_total,
+    mse_tint_total_std=mse_tint_total_std,
     mse_cold_total=mse_cold_total,
+    mse_cold_total_std=mse_cold_total_std,
     mse_tint_occupation=mse_tint_occupation,
+    mse_tint_occupation_std=mse_tint_occupation_std,
     mse_cold_occupation=mse_cold_occupation,
+    mse_cold_occupation_std=mse_cold_occupation_std,
     r2_tint=r2_tint,
     r2_cold=r2_cold,
 )
