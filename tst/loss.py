@@ -21,11 +21,13 @@ class OZELoss(nn.Module):
         Coefficient for consumption. Default is ``0.3``.
     """
 
-    def __init__(self, alpha: float = 0.3):
+    def __init__(self, reduction: str = 'mean', alpha: float = 0.3):
         super().__init__()
 
         self.alpha = alpha
-        self.base_loss = nn.MSELoss()
+        self.reduction = reduction
+
+        self.base_loss = nn.MSELoss(reduction=self.reduction)
 
     def forward(self,
                 y_true: torch.Tensor,
@@ -45,5 +47,9 @@ class OZELoss(nn.Module):
         """
         delta_Q = self.base_loss(y_pred[..., :-1], y_true[..., :-1])
         delta_T = self.base_loss(y_pred[..., -1], y_true[..., -1])
+
+        if self.reduction == 'none':
+            delta_Q = delta_Q.mean(dim=(1, 2))
+            delta_T = delta_T.mean(dim=(1))
 
         return torch.log(1 + delta_T) + self.alpha * torch.log(1 + delta_Q)
