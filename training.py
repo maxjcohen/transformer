@@ -74,17 +74,18 @@ net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attenti
 optimizer = optim.Adam(net.parameters(), lr=LR)
 loss_function = OZELoss(alpha=0.3)
 
-logger = Logger(f'logs/training.csv', model_name='transformer', params=['training_loss',
-                                                                        'mse_tint_total',
-                                                                        'mse_tint_total_std',
-                                                                        'mse_cold_total',
-                                                                        'mse_cold_total_std',
-                                                                        'mse_tint_occupation',
-                                                                        'mse_tint_occupation_std',
-                                                                        'mse_cold_occupation',
-                                                                        'mse_cold_occupation_std',
-                                                                        'r2_tint',
-                                                                        'r2_cold'])
+metrics = {
+    'training_loss': lambda y_true, y_pred: OZELoss(alpha=0.3, reduction='none')(y_true, y_pred).numpy(),
+    'mse_tint_total': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[-1], reduction='none'),
+    'mse_cold_total': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0], reduction='none'),
+    'mse_tint_occupation': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[-1], reduction='none', occupation=occupation),
+    'mse_cold_occupation': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0], reduction='none', occupation=occupation),
+    'r2_tint': lambda y_true, y_pred: np.array([r2_score(y_true[:, i, -1], y_pred[:, i, -1]) for i in range(y_true.shape[1])]),
+    'r2_cold': lambda y_true, y_pred: np.array([r2_score(y_true[:, i, 0], y_pred[:, i, 0]) for i in range(y_true.shape[1])])
+}
+
+logger = Logger(f'logs/training.csv', model_name=net.name,
+                params=[y for key in metrics.keys() for y in (key, key+'_std')])
 
 # Fit model
 with tqdm(total=EPOCHS) as pbar:
@@ -110,35 +111,16 @@ with torch.no_grad():
 occupation = ozeDataset._x[dataloader_test.dataset.indices,
                            :, ozeDataset.labels['Z'].index('occupancy')]
 
-# Training loss
-training_loss = loss_function(y_true, predictions).item()
-
-# MSE losses
-mse_tint_total, mse_tint_total_std = MSE(y_true, predictions, idx_label=[-1])
-mse_cold_total, mse_cold_total_std = MSE(y_true, predictions, idx_label=[0])
-
-mse_tint_occupation, mse_tint_occupation_std = MSE(y_true, predictions,
-                                                   idx_label=[-1],
-                                                   occupation=occupation)
-mse_cold_occupation, mse_cold_occupation_std = MSE(y_true, predictions,
-                                                   idx_label=[0],
-                                                   occupation=occupation)
-
-# R2 score
-r2_tint = r2_score(y_true[..., -1], predictions[..., -1])
-r2_cold = r2_score(y_true[..., 0], predictions[..., 0])
+results_metrics = {
+    key: value for key, func in metrics.items() for key, value in {
+        key: func(y_true, predictions).mean(),
+        key+'_std': func(y_true, predictions).std()
+    }.items()
+}
 
 # Log
-logger.log(
-    training_loss=training_loss,
-    mse_tint_total=mse_tint_total,
-    mse_tint_total_std=mse_tint_total_std,
-    mse_cold_total=mse_cold_total,
-    mse_cold_total_std=mse_cold_total_std,
-    mse_tint_occupation=mse_tint_occupation,
-    mse_tint_occupation_std=mse_tint_occupation_std,
-    mse_cold_occupation=mse_cold_occupation,
-    mse_cold_occupation_std=mse_cold_occupation_std,
-    r2_tint=r2_tint,
-    r2_cold=r2_cold,
-)
+logger.log(**results_metrics)
+
+# Save model
+torch.save(net.state_dict(),
+           f'models/{net.name}_{datetime.datetime.now().strftime("%Y_%m_%d__%H%M%S")}.pth')
