@@ -98,6 +98,8 @@ class Transformer(nn.Module):
             raise NameError(
                 f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
 
+        self.name = 'transformer'
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through transformer
 

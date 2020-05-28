@@ -37,6 +37,8 @@ class LSTM(nn.Module):
             hidden_dim *= 2
         self.linear = nn.Linear(hidden_dim, output_dim)
 
+        self.name = 'LSTM'
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through the network.
 
@@ -85,6 +87,8 @@ class BiGRU(LSTM):
 
         self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, dropout=dropout, batch_first=True, bidirectional=bidirectional)
 
+        self.name = 'GRU'
+
 
 class ConvGru(nn.Module):
     def __init__(self,
@@ -109,6 +113,8 @@ class ConvGru(nn.Module):
                          num_layers,
                          dropout=dropout,
                          bidirectional=bidirectional)
+
+        self.name = 'ConvGru'
 
     def forward(self, x):
         x = x.transpose(1, 2)
@@ -139,6 +145,8 @@ class FullyConv(nn.Module):
         self.conv3 = nn.Conv1d(in_channels=hidden_dim, out_channels=output_dim, kernel_size=11, stride=1, padding=11//2)
 
         self.activation = nn.LeakyReLU(0.1)
+
+        self.name = 'FullyConv'
 
     def forward(self, x):
         x = x.transpose(1, 2)
