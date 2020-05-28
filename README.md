@@ -50,10 +50,10 @@ Using jupyter, run the default `training.ipynb` notebook. All adjustable paramet
 
 ### Outside usage
 
-The `Transformer` class can be used out of the box, [docs](https://timeseriestransformer.readthedocs.io/en/latest/Transformer.html) for more info.
+The `Transformer` class can be used out of the box, see the [docs](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) for more info.
 
 ```python
-from time_series_transformer.Transformer import Transformer
+from time_series_transformer import Transformer
 
 net = Transformer(d_input, d_model, d_output, q, v, h, N, TIME_CHUNK, pe)
 ```

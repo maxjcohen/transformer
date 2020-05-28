@@ -72,7 +72,7 @@ dataloader_val = DataLoader(dataset_val,
 n_steps = np.prod([len(search_range)
                    for search_range in search_params.values()])
 
-logger = Logger('search_log.csv', list(search_params.keys()))
+logger = Logger('logs/search_log.csv', list(search_params.keys()) + ['loss'])
 
 with tqdm(total=n_steps*EPOCHS) as pbar:
     for params in itertools.product(*search_params.values()):
@@ -94,4 +94,4 @@ with tqdm(total=n_steps*EPOCHS) as pbar:
                    dataloader_val, epochs=EPOCHS, pbar=pbar, device=device)
 
         # Log
-        logger.log(params, loss=loss)
+        logger.log(loss=loss, **params)

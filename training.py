@@ -1,14 +1,13 @@
+"""
+training
+"""
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %% [markdown]
 # # Classic
 
 # %%
-import datetime
-
 from pathlib import Path
-import numpy as np
-from matplotlib import pyplot as plt
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
@@ -19,11 +18,8 @@ from time_series_transformer import Transformer
 from time_series_transformer.loss import OZELoss
 
 from src.dataset import OzeNPZDataset
-from src.utils import compute_loss, npz_check
-from src.visualization import map_plot_function, plot_values_distribution, plot_error_distribution, plot_errors_threshold, plot_visual_sample
+from src.utils import npz_check, fit, Logger
 
-
-# %%
 # Training parameters
 BATCH_SIZE = 8
 NUM_WORKERS = 0
@@ -59,15 +55,14 @@ ozeDataset = OzeNPZDataset(dataset_path=npz_check(Path('datasets'), 'dataset'), 
 
 
 # %%
-# dataset_train, dataset_val, dataset_test = random_split(ozeDataset, (38000, 1000, 1000))
 # Split between train and val
-ozeDataset_length = len(ozeDataset)
-train_val_length = round(ozeDataset_length*0.5)
-train_length = round(0.9*train_val_length)
-val_length = train_val_length - train_length
-test_length = ozeDataset_length - train_val_length
+oze_dataset_length = len(ozeDataset)
+total_length = 38000+1000+1000
+training_length = round(38000*oze_dataset_length/total_length)
+validation_length = round(1000*oze_dataset_length/total_length)
+test_length = oze_dataset_length - validation_length - training_length
 
-dataset_train, dataset_val, dataset_test = random_split(ozeDataset, (int(train_length), int(val_length), int(test_length)))
+dataset_train, dataset_val, dataset_test = random_split(ozeDataset, (training_length, validation_length, test_length))
 
 dataloader_train = DataLoader(dataset_train,
                               batch_size=BATCH_SIZE,
@@ -88,98 +83,18 @@ dataloader_test = DataLoader(dataset_test,
                              num_workers=NUM_WORKERS
                             )
 
-# %% [markdown]
-# ### Load network
-
-# %%
 # Load transformer with Adam optimizer and MSE loss function
-net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size, dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
+net = Transformer(d_input, d_model, d_output, q, v, h, N, attention_size=attention_size,
+                  dropout=dropout, chunk_mode=chunk_mode, pe=pe).to(device)
 optimizer = optim.Adam(net.parameters(), lr=LR)
 loss_function = OZELoss(alpha=0.3)
 
-# %% [markdown]
-# ### Train
+logger = Logger('logs/training.csv', params=['loss'])
 
-# %%
-model_save_path = f'models/model_{datetime.datetime.now().strftime("%Y_%m_%d__%H%M%S")}.pth'
-val_loss_best = np.inf
+with tqdm(total=EPOCHS) as pbar:
+    # Fit model
+    loss = fit(net, optimizer, loss_function, dataloader_train,
+               dataloader_val, epochs=EPOCHS, pbar=pbar, device=device)
 
-# Prepare loss history
-hist_loss = np.zeros(EPOCHS)
-hist_loss_val = np.zeros(EPOCHS)
-for idx_epoch in range(EPOCHS):
-    running_loss = 0
-    with tqdm(total=len(dataloader_train.dataset), desc=f"[Epoch {idx_epoch+1:3d}/{EPOCHS}]") as pbar:
-        for idx_batch, (x, y) in enumerate(dataloader_train):
-            optimizer.zero_grad()
-
-            # Propagate input
-            netout = net(x.to(device))
-
-            # Comupte loss
-            loss = loss_function(y.to(device), netout)
-
-            # Backpropage loss
-            loss.backward()
-
-            # Update weights
-            optimizer.step()
-
-            running_loss += loss.item()
-            pbar.set_postfix({'loss': running_loss/(idx_batch+1)})
-            pbar.update(x.shape[0])
-        
-        train_loss = running_loss/len(dataloader_train)
-        val_loss = compute_loss(net, dataloader_val, loss_function, device).item()
-        pbar.set_postfix({'loss': train_loss, 'val_loss': val_loss})
-        
-        hist_loss[idx_epoch] = train_loss
-        hist_loss_val[idx_epoch] = val_loss
-        
-        if val_loss < val_loss_best:
-            val_loss_best = val_loss
-            torch.save(net.state_dict(), model_save_path)
-        
-plt.plot(hist_loss, 'o-', label='train')
-plt.plot(hist_loss_val, 'o-', label='val')
-plt.legend()
-print(f"model exported to {model_save_path} with loss {val_loss_best:5f}")
-
-# %% [markdown]
-# ## Validation
-
-# %%
-_ = net.eval()
-
-# %% [markdown]
-# ### Evaluate on the test dataset
-
-# %%
-predictions = np.empty(shape=(len(dataloader_test.dataset), 168, 8))
-
-idx_prediction = 0
-with torch.no_grad():
-    for x, y in tqdm(dataloader_test, total=len(dataloader_test)):
-        netout = net(x.to(device)).cpu().numpy()
-        predictions[idx_prediction:idx_prediction+x.shape[0]] = netout
-        idx_prediction += x.shape[0]
-
-# %% [markdown]
-# ### Plot results on a sample
-
-# %%
-map_plot_function(ozeDataset, predictions, plot_visual_sample, dataset_indices=dataloader_test.dataset.indices)
-
-# %% [markdown]
-# ### Plot error distributions
-
-# %%
-map_plot_function(ozeDataset, predictions, plot_error_distribution, dataset_indices=dataloader_test.dataset.indices, time_limit=24)
-
-# %% [markdown]
-# ### Plot mispredictions thresholds
-
-# %%
-map_plot_function(ozeDataset, predictions, plot_errors_threshold, plot_kwargs={'error_band': 0.1}, dataset_indices=dataloader_test.dataset.indices)
-
-
+    # Log
+    logger.log(loss=loss)

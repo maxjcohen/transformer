@@ -2,6 +2,8 @@
 Search
 """
 import csv
+from pathlib import Path
+import datetime
 
 import numpy as np
 from torch.utils.data import DataLoader, Subset, random_split
@@ -99,18 +101,23 @@ class Logger:
     """
 
     # pylint: disable=dangerous-default-value
-    def __init__(self, csv_path, search_params=[]):
-        self.csv_file = open(csv_path, 'w')
-        self.writer = csv.DictWriter(self.csv_file, search_params + ['loss'])
-        self.writer.writeheader()
+    def __init__(self, csv_path, params=[]):
+        csv_path = Path(csv_path)
+
+        if csv_path.is_file():
+            self.csv_file = open(csv_path, 'a')
+            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+        else:
+            self.csv_file = open(csv_path, 'w')
+            self.writer = csv.DictWriter(self.csv_file, ['date'] + params)
+            self.writer.writeheader()
 
     # pylint: disable=dangerous-default-value
-    def log(self, params={}, **kwargs):
-        """
-        log method
-        """
-        params.update(kwargs)
-        self.writer.writerow(params)
+    def log(self, **kwargs):
+        kwargs.update({
+            'date': datetime.datetime.now().isoformat()
+        })
+        self.writer.writerow(kwargs)
         self.csv_file.flush()
 
     def __del__(self):

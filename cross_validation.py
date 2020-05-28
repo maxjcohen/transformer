@@ -48,7 +48,7 @@ ozeDataset = OzeNPZDataset(dataset_path=npz_check(Path('datasets'), 'dataset'), 
 loss_function = OZELoss(alpha=0.3)
 
 
-logger = Logger(f'crossvalidation_log_{attention_size}_{h}_{N}.csv')
+logger = Logger(f'logs/crossvalidation_log.csv', params=['loss'])
 
 kfoldIterator = kfold(ozeDataset, n_chunk=CHUNKS,
                       batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)

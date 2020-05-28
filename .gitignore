@@ -33,3 +33,6 @@ _build
 
 # Pytest cache
 .pytest_cache/
+
+# Logs
+log

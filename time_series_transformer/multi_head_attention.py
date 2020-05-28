@@ -56,6 +56,7 @@ class MultiHeadAttention(nn.Module):
         # Score placeholder
         self._scores = None
 
+    # pylint: disable=arguments-differ
     def forward(self,
                 query: torch.Tensor,
                 key: torch.Tensor,
@@ -95,11 +96,8 @@ class MultiHeadAttention(nn.Module):
 
         # Compute local map mask
         if self._attention_size is not None:
-            attention_mask = generate_local_map_mask(
-                K, self._attention_size, self._scores.device)
-
-            self._scores = self._scores.masked_fill(
-                attention_mask, float('-inf'))
+            attention_mask = generate_local_map_mask(K, self._attention_size, mask_future=False, device=self._scores.device)
+            self._scores = self._scores.masked_fill(attention_mask, float('-inf'))
 
         # Compute future mask
         if mask == "subsequent":
