@@ -2,21 +2,21 @@
 Cross validation.
 This script performs k-fold cross validation using a Bidirictionnal GRU.
 """
+from pathlib import Path
 import torch
 import torch.optim as optim
 from tqdm import tqdm
 
 from src.benchmark import BiGRU  # , LSTM
-from src.dataset import OzeDataset
-from src.utils import Logger, fit, kfold  # compute_loss
+from src.dataset import OzeNPZDataset
+from src.utils import Logger, fit, kfold, npz_check  # compute_loss
 # from test import Transformer
-from tst.loss import OZELoss
+from time_series_transformer.loss import OZELoss
 
 # Search parameters
 CHUNKS = 5
 
 # Training parameters
-DATASET_PATH = 'datasets/dataset.npz'
 BATCH_SIZE = 8
 NUM_WORKERS = 4
 LR = 2e-4
@@ -41,7 +41,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"Using device {device}")
 
 # Load dataset
-ozeDataset = OzeDataset(DATASET_PATH)
+ozeDataset = OzeNPZDataset(dataset_path=npz_check(Path('datasets'), 'dataset'), labels_path="labels.json")
 
 # Load network
 # Load transformer with Adam optimizer and MSE loss function

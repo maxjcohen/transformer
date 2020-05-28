@@ -1,6 +1,0 @@
-torch
-jupyterlab
-matplotlib
-seaborn
-tqdm
-pylint

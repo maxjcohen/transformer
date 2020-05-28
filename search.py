@@ -3,6 +3,7 @@ Search
 """
 import itertools
 from collections import OrderedDict
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -10,10 +11,10 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-from src.dataset import OzeDataset
-from src.utils import Logger, fit
-from tst import Transformer
-from tst.loss import OZELoss
+from src.dataset import OzeNPZDataset
+from src.utils import Logger, fit, npz_check
+from time_series_transformer import Transformer
+from time_series_transformer.loss import OZELoss
 
 # ===== user set params ====
 search_params = OrderedDict({
@@ -26,7 +27,6 @@ search_params = OrderedDict({
 })
 
 # Training parameters
-DATASET_PATH = 'datasets/dataset.npz'
 BATCH_SIZE = 4
 NUM_WORKERS = 4
 LR = 2e-4
@@ -49,7 +49,7 @@ print(f"Using device {device}")
 loss_function = OZELoss(alpha=0.3)
 
 # Load dataset
-ozeDataset = OzeDataset(DATASET_PATH)
+ozeDataset = OzeNPZDataset(dataset_path=npz_check(Path('datasets'), 'dataset'), labels_path="labels.json")
 
 # Split between train and val
 dataset_train, dataset_val = random_split(

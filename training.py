@@ -6,6 +6,7 @@
 # %%
 import datetime
 
+from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
 import torch
@@ -14,17 +15,16 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 import seaborn as sns
 
-from tst import Transformer
-from tst.loss import OZELoss
+from time_series_transformer import Transformer
+from time_series_transformer.loss import OZELoss
 
-from src.dataset import OzeDataset
-from src.utils import compute_loss
+from src.dataset import OzeNPZDataset
+from src.utils import compute_loss, npz_check
 from src.visualization import map_plot_function, plot_values_distribution, plot_error_distribution, plot_errors_threshold, plot_visual_sample
 
 
 # %%
 # Training parameters
-DATASET_PATH = 'datasets/dataset_random.npz'
 BATCH_SIZE = 8
 NUM_WORKERS = 0
 LR = 2e-4
@@ -55,7 +55,7 @@ print(f"Using device {device}")
 # ### Load dataset
 
 # %%
-ozeDataset = OzeDataset(DATASET_PATH)
+ozeDataset = OzeNPZDataset(dataset_path=npz_check(Path('datasets'), 'dataset'), labels_path="labels.json")
 
 
 # %%

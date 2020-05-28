@@ -53,7 +53,7 @@ Using jupyter, run the default `training.ipynb` notebook. All adjustable paramet
 The `Transformer` class can be used out of the box, [docs](https://timeseriestransformer.readthedocs.io/en/latest/Transformer.html) for more info.
 
 ```python
-from tst.Transformer import Transformer
+from time_series_transformer.Transformer import Transformer
 
 net = Transformer(d_input, d_model, d_output, q, v, h, N, TIME_CHUNK, pe)
 ```
@@ -64,4 +64,20 @@ To build the doc:
 
 ```bash
 (.env) $ cd docs && make html
+```
+
+## Development
+
+To install regular plus development requirements, issue the following command:
+
+```bash
+pip install -e .[dev]
+```
+
+### Test
+
+To test the package simply run the following command from project's root folder.
+
+```bash
+pytest -s
 ```

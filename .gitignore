@@ -6,8 +6,7 @@ build
 *.egg-info
 
 # Dataset
-*.npz
-datasets/*.csv
+datasets/
 
 # Models
 *.pth
@@ -28,3 +27,9 @@ _build
 
 # Outputs
 *.csv
+
+# Credentials
+.env.test.local
+
+# Pytest cache
+.pytest_cache/
