@@ -36,6 +36,7 @@ class Encoder(nn.Module):
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -68,6 +69,7 @@ class Encoder(nn.Module):
 
         self._dropout = nn.Dropout(p=dropout)
 
+    # pylint: disable=arguments-differ
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Encoder block.
 

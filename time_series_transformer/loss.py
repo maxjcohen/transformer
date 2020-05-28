@@ -6,6 +6,7 @@ import torch.nn as nn
 
 
 class OZELoss(nn.Module):
+    # pylint: disable=anomalous-backslash-in-string
     """Custom loss for TRNSys metamodel.
 
     Compute, for temperature and consumptions, the intergral of the squared differences
@@ -30,6 +31,7 @@ class OZELoss(nn.Module):
         self.alpha = alpha
         self.base_loss = nn.MSELoss()
 
+    # pylint: disable=arguments-differ
     def forward(self,
                 y_true: torch.Tensor,
                 y_pred: torch.Tensor) -> torch.Tensor:

@@ -24,7 +24,7 @@ class LSTM(nn.Module):
         If ``True``, becomes a bidirectional LSTM. Default: ``False``.
     """
 
-    # NOTE Too many arguments (7/5)pylint(too-many-arguments)
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -42,7 +42,7 @@ class LSTM(nn.Module):
             hidden_dim *= 2
         self.linear = nn.Linear(hidden_dim, output_dim)
 
-    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
+    # pylint: disable=arguments-differ
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through the network.
 
@@ -79,6 +79,7 @@ class BiGRU(LSTM):
         If ``True``, becomes a bidirectional GRU. Default: ``True``.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -98,7 +99,7 @@ class ConvGru(nn.Module):
     """
     ConvGru
     """
-    # NOTE Too many arguments (7/5)pylint(too-many-arguments)
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  input_dim: int,
                  hidden_dim: int,
@@ -125,7 +126,7 @@ class ConvGru(nn.Module):
                          dropout=dropout,
                          bidirectional=bidirectional)
 
-    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
+    # pylint: disable=arguments-differ
     def forward(self, x):
         x = x.transpose(1, 2)
         x = self.conv1(x)
@@ -149,7 +150,7 @@ class FullyConv(nn.Module):
                  input_dim: int,
                  hidden_dim: int,
                  output_dim: int,
-                 # NOTE Unused argument 'dropout'pylint(unused-argument)
+                 # pylint: disable=unused-argument
                  dropout: float = 0,
                  **kwargs):
         super().__init__(**kwargs)
@@ -163,7 +164,7 @@ class FullyConv(nn.Module):
 
         self.activation = nn.LeakyReLU(0.1)
 
-    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
+    # pylint: disable=arguments-differ
     def forward(self, x):
         x = x.transpose(1, 2)
         x = self.conv1(x)

@@ -98,13 +98,13 @@ class Logger:
     Logger class
     """
 
-    # NOTE Dangerous default value [] as argumentpylint(dangerous-default-value)
+    # pylint: disable=dangerous-default-value
     def __init__(self, csv_path, search_params=[]):
         self.csv_file = open(csv_path, 'w')
         self.writer = csv.DictWriter(self.csv_file, search_params + ['loss'])
         self.writer.writeheader()
 
-    # NOTE Dangerous default value {} as argumentpylint(dangerous-default-value)
+    # pylint: disable=dangerous-default-value
     def log(self, params={}, **kwargs):
         """
         log method
