@@ -58,6 +58,7 @@ class Encoder(nn.Module):
         elif chunk_mode is None:
             MHA = MultiHeadAttention
         else:
+            # pylint: disable=line-too-long
             raise NameError(
                 f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
 

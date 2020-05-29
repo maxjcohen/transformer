@@ -31,6 +31,7 @@ class PositionwiseFeedForward(nn.Module):
         self._linear1 = nn.Linear(d_model, d_ff)
         self._linear2 = nn.Linear(d_ff, d_model)
 
+    # pylint: disable=arguments-differ
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate forward the input through the PFF block.
 

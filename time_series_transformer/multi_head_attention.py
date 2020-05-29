@@ -33,6 +33,7 @@ class MultiHeadAttention(nn.Module):
         Deactivated if ``None``. Default is ``None``.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -96,7 +97,8 @@ class MultiHeadAttention(nn.Module):
 
         # Compute local map mask
         if self._attention_size is not None:
-            attention_mask = generate_local_map_mask(K, self._attention_size, mask_future=False, device=self._scores.device)
+            attention_mask = generate_local_map_mask(
+                K, self._attention_size, mask_future=False, device=self._scores.device)
             self._scores = self._scores.masked_fill(attention_mask, float('-inf'))
 
         # Compute future mask
@@ -156,6 +158,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         Default is 168.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -244,6 +247,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         return self_attention
 
 
+# pylint: disable=too-many-instance-attributes
 class MultiHeadAttentionWindow(MultiHeadAttention):
     """Multi Head Attention block with moving window.
 
@@ -273,6 +277,7 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         Default is 168 // 4 = 42.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,

@@ -98,9 +98,11 @@ class Transformer(nn.Module):
         elif pe is None:
             self._generate_PE = None
         else:
+            # pylint: disable=line-too-long
             raise NameError(
                 f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
 
+    # pylint: disable=arguments-differ
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through transformer
 
