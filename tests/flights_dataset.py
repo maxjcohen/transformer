@@ -23,18 +23,21 @@ class FlightsDataset(TimeSeriesDataset):
 
         month_number = [list(calendar.month_name).index(_month) for _month in month]
 
-        passengers = pd.DataFrame(passengers)
-        month_number = pd.DataFrame(month_number)
-        year = pd.DataFrame(year)
+        passengers_df = pd.DataFrame(passengers)
+        month_number_df = pd.DataFrame(month_number)
+        year_df = pd.DataFrame(year)
 
         number_of_training_examples = 1
         # Store month_number and year as _x
-        _x = np.concatenate([month_number, year], axis=-1)
+        _x = np.concatenate([month_number_df, year_df], axis=-1)
         d_input = _x.shape[1]
         _x = _x.reshape(number_of_training_examples, -1, d_input).astype(np.float32)
 
         # Store passengers as _y
         d_output = 1
-        _y = passengers.values.reshape(number_of_training_examples, -1, d_output).astype(np.float32)
+        _y = passengers_df.values.reshape(number_of_training_examples, -1, d_output).astype(np.float32)
 
-        super().__init__(_x, _y)
+        labels = {}
+        labels['x'] = [month.name, year.name]
+        labels['y'] = [passengers.name]
+        super().__init__(_x, _y, labels)
