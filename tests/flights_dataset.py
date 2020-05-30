@@ -10,6 +10,18 @@ import seaborn as sns
 
 from src.time_series_dataset import TimeSeriesDataset
 
+def _make_predictor(features, number_of_training_examples):
+    #pylint: disable=too-many-function-args
+    return np.concatenate(features, axis=-1).reshape(
+        number_of_training_examples, -1, len(features)).astype(np.float32)
+
+def _get_labels(input_features, output_features):
+    def _features_to_label_list(features):
+        return [list(feature)[0] for feature in features]
+    labels = {}
+    labels['x'] = _features_to_label_list(input_features)
+    labels['y'] = _features_to_label_list(output_features)
+    return labels
 
 class FlightsDataset(TimeSeriesDataset):
     """
@@ -24,20 +36,16 @@ class FlightsDataset(TimeSeriesDataset):
         month_number = [list(calendar.month_name).index(_month) for _month in month]
 
         passengers_df = pd.DataFrame(passengers)
-        month_number_df = pd.DataFrame(month_number)
+        month_number_df = pd.DataFrame(data={'month_number': month_number})
         year_df = pd.DataFrame(year)
 
         number_of_training_examples = 1
         # Store month_number and year as _x
-        _x = np.concatenate([month_number_df, year_df], axis=-1)
-        d_input = _x.shape[1]
-        _x = _x.reshape(number_of_training_examples, -1, d_input).astype(np.float32)
+        input_features = [month_number_df, year_df]
+        _x = _make_predictor(input_features, number_of_training_examples)
 
         # Store passengers as _y
-        d_output = 1
-        _y = passengers_df.values.reshape(number_of_training_examples, -1, d_output).astype(np.float32)
+        output_features = [passengers_df]
+        _y = _make_predictor(output_features, number_of_training_examples)
 
-        labels = {}
-        labels['x'] = [month.name, year.name]
-        labels['y'] = [passengers.name]
-        super().__init__(_x, _y, labels)
+        super().__init__(_x, _y, _get_labels(input_features, output_features))
