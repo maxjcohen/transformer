@@ -9,8 +9,9 @@ class TimeSeriesDataset(Dataset):
     """
     TimeSeriesDataset
     """
-    def __init__(self, _x, _y):
+    def __init__(self, _x, _y, labels):
         super().__init__()
+        self.labels = labels
         self._x = _x
         self._y = _y
         self.original_y = None
