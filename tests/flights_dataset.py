@@ -27,13 +27,14 @@ class FlightsDataset(TimeSeriesDataset):
         month_number = pd.DataFrame(month_number)
         year = pd.DataFrame(year)
 
+        number_of_training_examples = 1
         # Store month_number and year as _x
         _x = np.concatenate([month_number, year], axis=-1)
         d_input = _x.shape[1]
-        _x = _x.reshape(-1, 1, d_input).astype(np.float32)
+        _x = _x.reshape(number_of_training_examples, -1, d_input).astype(np.float32)
 
         # Store passengers as _y
         d_output = 1
-        _y = passengers.values.reshape(-1, 1, d_output).astype(np.float32)
+        _y = passengers.values.reshape(number_of_training_examples, -1, d_output).astype(np.float32)
 
         super().__init__(_x, _y)
