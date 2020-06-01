@@ -146,3 +146,29 @@ class Transformer(nn.Module):
         output = self._linear(decoding)
         output = torch.sigmoid(output)
         return output
+
+
+class FFN(nn.Module):
+
+    def __init__(self,
+                 input_dim: int,
+                 hidden_dim: int,
+                 output_dim: int,
+                 num_layers: int,
+                 dropout: float = 0,
+                 **kwargs):
+        super().__init__(**kwargs)
+
+        layer_dim = [hidden_dim for _ in range(num_layers)]
+        layer_dim[0] = input_dim
+        layer_dim[-1] = output_dim
+
+        self.layers_dense = nn.ModuleList([nn.Linear(layer_dim[i],
+                                                     layer_dim[i+1]) for i in range(num_layers-1)])
+
+        self.name = 'FFN'
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        for layer in self.layers_dense:
+            x = layer(x)
+        return x

@@ -13,7 +13,7 @@ from tst.loss import OZELoss
 
 from src.dataset import OzeDataset
 from src.utils import compute_loss, fit, Logger, kfold
-from src.benchmark import LSTM, BiGRU
+from src.benchmark import LSTM, BiGRU, ConvGru, FFN
 from src.metrics import MSE
 
 
@@ -90,7 +90,7 @@ logger = Logger(f'logs/training.csv', model_name=net.name,
 # Fit model
 with tqdm(total=EPOCHS) as pbar:
     loss = fit(net, optimizer, loss_function, dataloader_train,
-               dataloader_val, epochs=EPOCHS, device=device)
+               dataloader_val, epochs=EPOCHS, pbar=pbar, device=device)
 
 # Switch to evaluation
 _ = net.eval()
