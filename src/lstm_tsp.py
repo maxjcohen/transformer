@@ -27,6 +27,3 @@ class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
         net = BenchmarkLSTM(input_dim=d_input, hidden_dim=self.hidden_dim,
                             output_dim=d_output, num_layers=self.num_layers)
         return super().fit(dataset, net, loss_function=loss_function)
-
-    def make_future_dataframe(self):
-        """make_future_dataframe"""

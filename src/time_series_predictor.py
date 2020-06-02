@@ -25,6 +25,7 @@ class TimeSeriesPredictor:
         self.device = None
         self.net = None
         self.dataloader = None
+        self.dataset = None
         self.loss_function = None
         self.optimizer = None
         self.model_save_path = f'model_{datetime.datetime.now().strftime("%Y_%m_%d__%H%M%S")}.pth'
@@ -42,6 +43,7 @@ class TimeSeriesPredictor:
                                      pin_memory=is_cuda,
                                      num_workers=num_workers)
         self.net = self.net.to(device)
+        self.dataset = dataset
 
     def _fit(self):
         loss_best = np.inf
@@ -81,10 +83,23 @@ class TimeSeriesPredictor:
         print(f"\nmodel exported to {self.model_save_path} with loss {train_loss_best:5f}")
         return hist_loss
 
-    def make_future_dataframe(self):
+    def get_training_dataframe(self):
+        """
+        get_training_dataframe
+        """
+        return [inp for (inp, out) in self.dataloader]
+
+    def make_future_dataframe(self, *args, **kwargs):
         """
         make_future_dataframe
         """
+        return self.dataset.make_future_dataframe(*args, **kwargs)
+
+    def forecast(self, *args, **kwargs):
+        """
+        Future forecast
+        """
+        return self.predict(self.make_future_dataframe(*args, **kwargs))
 
     def predict(self, inp):
         """
