@@ -47,8 +47,3 @@ class TransformerTimeSeriesPredictor(TimeSeriesPredictor):
                           attention_size=self.attention_size, dropout=self.dropout,
                           chunk_mode=self.chunk_mode, pe=self.positional_encoding)
         return super().fit(dataset, net, loss_function=loss_function)
-
-    def make_future_dataframe(self):
-        """
-        Make future dataframe
-        """
