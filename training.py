@@ -77,11 +77,11 @@ loss_function = OZELoss(alpha=0.3)
 metrics = {
     'training_loss': lambda y_true, y_pred: OZELoss(alpha=0.3, reduction='none')(y_true, y_pred).numpy(),
     'mse_tint_total': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[-1], reduction='none'),
-    'mse_cold_total': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0], reduction='none'),
+    'mse_cold_total': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0, 1, 2, 3, 4, 5, 6], reduction='none'),
     'mse_tint_occupation': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[-1], reduction='none', occupation=occupation),
-    'mse_cold_occupation': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0], reduction='none', occupation=occupation),
+    'mse_cold_occupation': lambda y_true, y_pred: MSE(y_true, y_pred, idx_label=[0, 1, 2, 3, 4, 5, 6], reduction='none', occupation=occupation),
     'r2_tint': lambda y_true, y_pred: np.array([r2_score(y_true[:, i, -1], y_pred[:, i, -1]) for i in range(y_true.shape[1])]),
-    'r2_cold': lambda y_true, y_pred: np.array([r2_score(y_true[:, i, 0], y_pred[:, i, 0]) for i in range(y_true.shape[1])])
+    'r2_cold': lambda y_true, y_pred: np.array([r2_score(y_true[:, i, 0:-1], y_pred[:, i, 0:-1]) for i in range(y_true.shape[1])])
 }
 
 logger = Logger(f'logs/training.csv', model_name=net.name,
