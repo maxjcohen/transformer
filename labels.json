@@ -10,6 +10,7 @@
         "T_INT_OFFICE"
     ],
     "Z": [
+        "weekday",
         "ac_t_conf",
         "ac_t_red",
         "ac_mask",
@@ -37,18 +38,9 @@
         "power_VCV_kW_clim",
         "nb_occupants",
         "nb_PCs",
-        "facade_1_thickness_2",
-        "facade_1_window_area_percent",
-        "facade_2_thickness_2",
-        "facade_2_window_area_percent",
-        "facade_3_thickness_2",
-        "facade_3_window_area_percent",
-        "facade_4_thickness_2",
-        "facade_4_window_area_percent",
-        "roof_1_thickness_3",
+        "initial_temperature",
         "init_day",
         "init_month",
-        "init_year",
-        "initial_temperature"
+        "init_year"
     ]
 }
