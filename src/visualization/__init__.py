@@ -73,10 +73,6 @@ def map_plot_function(dataset, predictions, plot_function, plot_kwargs={}, datas
 
         # If a consumption
         if label.startswith('Q_'):
-            # Convert kJ/h to kW
-            y_true /= 3600
-            y_pred /= 3600
-
             unit = 'kW'
         else:
             unit = '°C'
