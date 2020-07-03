@@ -42,7 +42,7 @@ $ . .env/bin/activate
 
 ### Downloading the dataset
 
-The dataset is not included in this repo, and must be downloaded manually. It is comprised of two files, `dataset.npz` contains all input and outputs value, `labels.json` is a detailed list of the variables.
+The dataset is not included in this repo, and must be downloaded manually. It is comprised of two files, `dataset.npz` contains all input and outputs value, `labels.json` is a detailed list of the variables. Please refer to [#2](https://github.com/maxjcohen/transformer/issues/2) for more information.
 
 ### Running training script
 
