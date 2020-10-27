@@ -96,7 +96,7 @@ class Decoder(nn.Module):
 
         # Encoder-decoder attention
         residual = x
-        x = self._selfAttention(query=x, key=memory, value=memory)
+        x = self._encoderDecoderAttention(query=x, key=memory, value=memory)
         x = self._dopout(x)
         x = self._layerNorm2(x + residual)
 
