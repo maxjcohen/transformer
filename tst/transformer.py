@@ -60,7 +60,7 @@ class Transformer(nn.Module):
                  N: int,
                  attention_size: int = None,
                  dropout: float = 0.3,
-                 chunk_mode: bool = True,
+                 chunk_mode: str = 'chunk',
                  pe: str = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
