@@ -43,11 +43,13 @@ class Transformer(nn.Module):
         Dropout probability after each MHA or PFF block.
         Default is ``0.3``.
     chunk_mode:
-        Swict between different MultiHeadAttention blocks.
+        Switch between different MultiHeadAttention blocks.
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
         Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
+    pe_period:
+        If using the ``'regular'` pe, then we can define the period. Default is ``24``.
     """
 
     def __init__(self,
@@ -61,7 +63,8 @@ class Transformer(nn.Module):
                  attention_size: int = None,
                  dropout: float = 0.3,
                  chunk_mode: str = 'chunk',
-                 pe: str = None):
+                 pe: str = None,
+                 pe_period: int = 24):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
@@ -92,6 +95,7 @@ class Transformer(nn.Module):
 
         if pe in pe_functions.keys():
             self._generate_PE = pe_functions[pe]
+            self._pe_period = pe_period
         elif pe is None:
             self._generate_PE = None
         else:
@@ -122,7 +126,8 @@ class Transformer(nn.Module):
 
         # Add position encoding
         if self._generate_PE is not None:
-            positional_encoding = self._generate_PE(K, self._d_model)
+            pe_params = {'period': self._pe_period} if self._pe_period else {}
+            positional_encoding = self._generate_PE(K, self._d_model, **pe_params)
             positional_encoding = positional_encoding.to(encoding.device)
             encoding.add_(positional_encoding)
 
