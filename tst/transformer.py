@@ -64,7 +64,7 @@ class Transformer(nn.Module):
                  dropout: float = 0.3,
                  chunk_mode: str = 'chunk',
                  pe: str = None,
-                 pe_period: int = 24):
+                 pe_period: int = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
