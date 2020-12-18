@@ -95,7 +95,9 @@ class Transformer(nn.Module):
 
         if pe in pe_functions.keys():
             self._generate_PE = pe_functions[pe]
-            self._pe_period = pe_period
+
+            if pe == 'regular' and self._pe_period is not None:
+                self._pe_period = pe_period
         elif pe is None:
             self._generate_PE = None
         else:
