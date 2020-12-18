@@ -47,9 +47,9 @@ class Transformer(nn.Module):
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
-        Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
+        Must be one of `original, `regular` or `None. Default is `None`.
     pe_period:
-        If using the ``'regular'` pe, then we can define the period. Default is ``24``.
+        If using the ``regular`` pe, then we can define the period. Default is ``24``.
     """
 
     def __init__(self,
