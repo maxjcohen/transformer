@@ -42,7 +42,9 @@ class FlightsDataset(TimeSeriesDataset):
         month = flights_dataset['month']
         year = flights_dataset['year']
 
-        month_number = [list(calendar.month_name).index(_month)
+        months_3l = [month_name[0:3]
+                     for month_name in list(calendar.month_name)]
+        month_number = [months_3l.index(_month)
                         for _month in month]
 
         passengers_df = pd.DataFrame(passengers)

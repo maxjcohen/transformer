@@ -5,7 +5,9 @@ To run issue the command pytest at the root folder of the project.
 from src.lstm_tsp import LSTMTimeSeriesPredictor
 from src.transformer_tsp import TransformerTimeSeriesPredictor
 from .flights_dataset import FlightsDataset
+import pytest
 
+@pytest.mark.skip
 def test_lstm_tsp():
     """
     Tests the LSTMTimeSeriesPredictor
