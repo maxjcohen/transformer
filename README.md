@@ -1,6 +1,7 @@
 # Transformers for Time Series
+[![PyPI version](https://badge.fury.io/py/time-series-transformer.svg)](https://badge.fury.io/py/time-series-transformer) [![travis](https://travis-ci.org/DanielAtKrypton/time_series_transformer.svg?branch=master)](https://travis-ci.org/github/DanielAtKrypton/time_series_transformer) [![codecov](https://codecov.io/gh/DanielAtKrypton/time_series_transformer/branch/master/graph/badge.svg)](https://codecov.io/gh/DanielAtKrypton/time_series_transformer) [![GitHub license](https://img.shields.io/github/license/DanielAtKrypton/time_series_transformer)](https://github.com/DanielAtKrypton/time_series_transformer) [![Requirements Status](https://requires.io/github/DanielAtKrypton/time_series_transformer/requirements.svg?branch=master)](https://requires.io/github/DanielAtKrypton/time_series_transformer/requirements/?branch=master)
 
-Based on [timeseriestransformer](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)
+Based on [timeseriestransformer](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest).
 
 ## Installation
 
