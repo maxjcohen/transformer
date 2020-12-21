@@ -28,23 +28,16 @@ setuptools.setup(
     ],
     extras_require={
         'dev': [
-            'pytest',
             'pylint',
             'autopep8',
-            'jupyterlab',
-            'matplotlib',
-            'seaborn',
-            'python-dotenv',
-            'python-dotenv[cli]',
-            'psutil',
-            'lxml'
+            'bumpversion',
         ],
         'test': [
+            'pytest',
             'flights-time-series-dataset',
             'time-series-predictor',
         ],
         'docs': [
-
         ]
     }
 )
