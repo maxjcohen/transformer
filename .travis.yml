@@ -10,6 +10,6 @@ before_install:
 install:
     - pip install -e .[test] # install package + test dependencies
 script:
-    - pytest --cov=time_series_predictor # run tests
+    - pytest --cov=time_series_transformer # run tests
 after_success:
   - codecov # submit coverage 
