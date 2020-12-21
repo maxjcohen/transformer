@@ -35,6 +35,8 @@ setuptools.setup(
         ],
         'test': [
             'pytest',
+            'pytest>=4.6',
+            'pytest-cov',
             'flights-time-series-dataset',
             'time-series-predictor',
         ],

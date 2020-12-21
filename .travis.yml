@@ -1,0 +1,15 @@
+language: python
+cache:
+  pip: true
+  directories:
+  # - datasets
+before_install:
+  - python --version
+  - pip install -U pip
+  - pip install codecov
+install:
+    - pip install -e .[test] # install package + test dependencies
+script:
+    - pytest --cov=time_series_predictor # run tests
+after_success:
+  - codecov # submit coverage 
