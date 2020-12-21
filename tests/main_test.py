@@ -2,28 +2,40 @@
 main test script
 To run issue the command pytest at the root folder of the project.
 """
-from src.lstm_tsp import LSTMTimeSeriesPredictor
-from src.transformer_tsp import TransformerTimeSeriesPredictor
-from .flights_dataset import FlightsDataset
+import torch
+from flights_time_series_dataset import FlightsDataset
 import pytest
-
-@pytest.mark.skip
-def test_lstm_tsp():
-    """
-    Tests the LSTMTimeSeriesPredictor
-    """
-    tsp = LSTMTimeSeriesPredictor(epochs=50)
-
-    tsp.fit(FlightsDataset())
-    mean_loss = tsp.compute_mean_loss(tsp.dataloader)
-    assert mean_loss < 0.01
+from time_series_predictor import TimeSeriesPredictor
+from time_series_transformer import Transformer
 
 def test_transformer_tsp():
     """
     Tests the TransformerTimeSeriesPredictor
     """
-    tsp = TransformerTimeSeriesPredictor()
+    if not torch.cuda.is_available():
+        pytest.skip("needs a CUDA compatible GPU available to run this test")
+
+    tsp = TimeSeriesPredictor(
+        Transformer(),
+        max_epochs=50,
+        train_split=None,
+    )
 
     tsp.fit(FlightsDataset())
-    mean_loss = tsp.compute_mean_loss(tsp.dataloader)
-    assert mean_loss < 0.03
+    score = tsp.score(tsp.dataset)
+    assert score > -1
+
+def test_transformer_tsp_in_cpu():
+    """
+    Tests the TransformerTimeSeriesPredictor
+    """
+    tsp = TimeSeriesPredictor(
+        Transformer(),
+        max_epochs=50,
+        train_split=None,
+        device='cpu',
+    )
+
+    tsp.fit(FlightsDataset())
+    score = tsp.score(tsp.dataset)
+    assert score > -1

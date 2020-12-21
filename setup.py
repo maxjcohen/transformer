@@ -9,12 +9,12 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="time_series_transformer",
     version="0.3.0",
-    author="Max Cohen",
-    author_email="max.zagouri@pm.me",
+    author="Daniel Kaminski de Souza",
+    author_email="daniel@kryptonunite.com",
     description="Time Series Transformer",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://timeseriestransformer.readthedocs.io/",
+    url="https://github.com/DanielAtKrypton/transformer",
     packages=['time_series_transformer'],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -34,11 +34,17 @@ setuptools.setup(
             'jupyterlab',
             'matplotlib',
             'seaborn',
-            'tqdm',
             'python-dotenv',
             'python-dotenv[cli]',
             'psutil',
             'lxml'
+        ],
+        'test': [
+            'flights-time-series-dataset',
+            'time-series-predictor',
+        ],
+        'docs': [
+
         ]
     }
 )
