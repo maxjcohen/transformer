@@ -31,6 +31,7 @@ setuptools.setup(
             'pylint',
             'autopep8',
             'bumpversion',
+            'twine',
         ],
         'test': [
             'pytest',
