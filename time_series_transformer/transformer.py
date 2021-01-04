@@ -77,7 +77,8 @@ class Transformer(nn.Module):
                                                       h,
                                                       attention_size=attention_size,
                                                       dropout=dropout,
-                                                      chunk_mode=chunk_mode) for _ in range(N)])
+                                                      chunk_mode=chunk_mode,
+                                                      **kwargs) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(hidden_dim,
                                                       q,
                                                       v,

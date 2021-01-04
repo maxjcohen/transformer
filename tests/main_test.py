@@ -11,7 +11,7 @@ from flights_time_series_dataset import FlightsDataset
 from time_series_predictor import TimeSeriesPredictor
 from time_series_transformer import Transformer
 
-
+# @pytest.mark.skip
 def test_transformer_tsp():
     """
     Tests the TransformerTimeSeriesPredictor
@@ -33,7 +33,7 @@ def test_transformer_tsp():
     elapsed = timedelta(seconds = end - start)
     print("Fitting in GPU time delta: {}".format(elapsed))
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_transformer_tsp_in_cpu():
     """
     Tests the TransformerTimeSeriesPredictor

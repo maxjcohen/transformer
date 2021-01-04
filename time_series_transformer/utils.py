@@ -1,6 +1,7 @@
 """
 Utils
 """
+from os import device_encoding
 from typing import Optional
 
 import torch
@@ -61,7 +62,7 @@ def generate_regular_PE(length: int, d_model: int, period: Optional[int] = 24) -
 def generate_local_map_mask(chunk_size: int,
                             attention_size: int,
                             mask_future=False,
-                            device: torch.device = 'cuda') -> torch.BoolTensor:
+                            device='cuda') -> torch.BoolTensor:
     """Compute attention mask as attention_size wide diagonal.
 
     Parameters
@@ -70,8 +71,6 @@ def generate_local_map_mask(chunk_size: int,
         Time dimension size.
     attention_size:
         Number of backward elements to apply attention.
-    device:
-        torch device. Default is ``'cpu'``.
 
     Returns
     -------

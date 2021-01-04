@@ -40,9 +40,10 @@ class MultiHeadAttention(nn.Module):
                  q: int,
                  v: int,
                  h: int,
-                 attention_size: int = None):
+                 attention_size: int = None,
+                 **kwargs):
         """Initialize the Multi Head Block."""
-        super().__init__()
+        super().__init__(**kwargs)
 
         self._h = h
         self._attention_size = attention_size
@@ -99,13 +100,12 @@ class MultiHeadAttention(nn.Module):
         # Compute local map mask
         if self._attention_size is not None:
             attention_mask = generate_local_map_mask(
-                K, self._attention_size, mask_future=False, device=self._scores.device)
+                K, self._attention_size, mask_future=False, device=queries.device)
             self._scores = self._scores.masked_fill(attention_mask, float('-inf'))
 
         # Compute future mask
         if mask == "subsequent":
-            future_mask = torch.triu(torch.ones((K, K)), diagonal=1).bool()
-            future_mask = future_mask.to(self._scores.device)
+            future_mask = torch.triu(torch.ones((K, K), device=queries.device), diagonal=1).bool()
             self._scores = self._scores.masked_fill(future_mask, float('-inf'))
 
         # Apply sotfmax

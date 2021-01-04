@@ -44,9 +44,10 @@ class Encoder(nn.Module):
                  h: int,
                  attention_size: int = None,
                  dropout: float = 0.3,
-                 chunk_mode: str = 'chunk'):
+                 chunk_mode: str = 'chunk',
+                 **kwargs):
         """Initialize the Encoder block"""
-        super().__init__()
+        super().__init__(**kwargs)
 
         chunk_mode_modules = {
             'chunk': MultiHeadAttentionChunk,
@@ -62,8 +63,8 @@ class Encoder(nn.Module):
             raise NameError(
                 f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
 
-        self._selfAttention = MHA(d_model, q, v, h, attention_size=attention_size)
-        self._feedForward = PositionwiseFeedForward(d_model)
+        self._selfAttention = MHA(d_model, q, v, h, attention_size=attention_size, **kwargs)
+        self._feedForward = PositionwiseFeedForward(d_model, **kwargs)
 
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
