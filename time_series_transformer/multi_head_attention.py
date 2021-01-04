@@ -3,13 +3,14 @@ MultiHeadAttention
 """
 from typing import Optional
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .utils import generate_local_map_mask
 
+def sqrt(value) -> torch.Tensor:
+    return torch.sqrt(torch.tensor(float(value)))
 
 class MultiHeadAttention(nn.Module):
     """Multi Head Attention block from Attention is All You Need.
@@ -93,7 +94,7 @@ class MultiHeadAttention(nn.Module):
         values = torch.cat(self._W_v(value).chunk(self._h, dim=-1), dim=0)
 
         # Scaled Dot Product
-        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / np.sqrt(K)
+        self._scores = torch.bmm(queries, keys.transpose(1, 2)) / sqrt(K)
 
         # Compute local map mask
         if self._attention_size is not None:
@@ -220,7 +221,7 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
 
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(
-            1, 2)) / np.sqrt(self._chunk_size)
+            1, 2)) / sqrt(self._chunk_size)
 
         # Compute local map mask
         if self._attention_size is not None:
@@ -358,7 +359,7 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
 
         # Scaled Dot Product
         self._scores = torch.bmm(queries, keys.transpose(
-            1, 2)) / np.sqrt(self._window_size)
+            1, 2)) / sqrt(self._window_size)
 
         # Compute local map mask
         if self._attention_size is not None:

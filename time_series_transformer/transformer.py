@@ -64,7 +64,8 @@ class Transformer(nn.Module):
                  attention_size: int = 6,
                  dropout: float = 0.2,
                  chunk_mode: bool = None,
-                 pe: str = None):
+                 pe: str = None,
+                 **kwargs):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
@@ -83,7 +84,8 @@ class Transformer(nn.Module):
                                                       h,
                                                       attention_size=attention_size,
                                                       dropout=dropout,
-                                                      chunk_mode=chunk_mode) for _ in range(N)])
+                                                      chunk_mode=chunk_mode,
+                                                      **kwargs) for _ in range(N)])
 
         self._embedding = nn.Linear(input_dim, hidden_dim)
         self._linear = nn.Linear(hidden_dim, output_dim)
@@ -132,7 +134,7 @@ class Transformer(nn.Module):
         # Add position encoding
         if self._generate_PE is not None:
             positional_encoding = self._generate_PE(K, self._hidden_dim)
-            positional_encoding = positional_encoding.to(encoding.device)
+            positional_encoding = positional_encoding
             encoding.add_(positional_encoding)
 
         # Encoding stack
@@ -145,7 +147,7 @@ class Transformer(nn.Module):
         # Add position encoding
         if self._generate_PE is not None:
             positional_encoding = self._generate_PE(K, self._hidden_dim)
-            positional_encoding = positional_encoding.to(decoding.device)
+            positional_encoding = positional_encoding
             decoding.add_(positional_encoding)
 
         for layer in self.layers_decoding:

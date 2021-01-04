@@ -24,7 +24,7 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         "torch",
-        "numpy==1.19.0"
+        "numpy==1.19.3",
     ],
     extras_require={
         'dev': [
