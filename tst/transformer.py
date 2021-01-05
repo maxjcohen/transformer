@@ -46,11 +46,13 @@ class Transformer(nn.Module):
         Dropout probability after each MHA or PFF block.
         Default is ``0.3``.
     chunk_mode:
-        Swict between different MultiHeadAttention blocks.
+        Switch between different MultiHeadAttention blocks.
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     pe:
         Type of positional encoding to add.
         Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
+    pe_period:
+        If using the ``'regular'` pe, then we can define the period. Default is ``24``.
     """
 
     def __init__(self,
@@ -65,28 +67,26 @@ class Transformer(nn.Module):
                  dropout: float = 0.2,
                  chunk_mode: bool = None,
                  pe: str = None,
-                 **kwargs):
+                 pe_period: int = 24):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
         self._hidden_dim = hidden_dim
 
         self.layers_encoding = nn.ModuleList([Encoder(hidden_dim,
-                                                      q,
-                                                      v,
-                                                      h,
-                                                      attention_size=attention_size,
-                                                      dropout=dropout,
-                                                      chunk_mode=chunk_mode,
-                                                      **kwargs) for _ in range(N)])
+                                                   q,
+                                                   v,
+                                                   h,
+                                                   attention_size=attention_size,
+                                                   dropout=dropout,
+                                                   chunk_mode=chunk_mode) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(hidden_dim,
-                                                      q,
-                                                      v,
-                                                      h,
-                                                      attention_size=attention_size,
-                                                      dropout=dropout,
-                                                      chunk_mode=chunk_mode,
-                                                      **kwargs) for _ in range(N)])
+                                                   q,
+                                                   v,
+                                                   h,
+                                                   attention_size=attention_size,
+                                                   dropout=dropout,
+                                                   chunk_mode=chunk_mode) for _ in range(N)])
 
         self._embedding = nn.Linear(input_dim, hidden_dim)
         self._linear = nn.Linear(hidden_dim, output_dim)
@@ -98,11 +98,14 @@ class Transformer(nn.Module):
 
         if pe in pe_functions.keys():
             self._generate_PE = pe_functions[pe]
+            self._pe_period = pe_period
         elif pe is None:
             self._generate_PE = None
         else:
             raise NameError(
                 f'PE "{pe}" not understood. Must be one of {", ".join(pe_functions.keys())} or None.')
+
+        self.name = 'transformer'
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Propagate input through transformer
@@ -119,21 +122,16 @@ class Transformer(nn.Module):
         -------
             Output tensor with shape (batch_size, K, output_dim).
         """
-        x_shape_length = len(x.shape)
-        if x_shape_length > 1:
-            K = x.shape[1]
-        elif x_shape_length == 1:
-            K = 1
-        else:
-            K = 0
+        K = x.shape[1]
 
         # Embedding module
         encoding = self._embedding(x)
 
         # Add position encoding
         if self._generate_PE is not None:
-            positional_encoding = self._generate_PE(K, self._hidden_dim)
-            positional_encoding = positional_encoding
+            pe_params = {'period': self._pe_period} if self._pe_period else {}
+            positional_encoding = self._generate_PE(K, self._hidden_dim, **pe_params)
+            positional_encoding = positional_encoding.to(encoding.device)
             encoding.add_(positional_encoding)
 
         # Encoding stack

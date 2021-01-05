@@ -39,10 +39,9 @@ class MultiHeadAttention(nn.Module):
                  q: int,
                  v: int,
                  h: int,
-                 attention_size: int = None,
-                 **kwargs):
+                 attention_size: int = None):
         """Initialize the Multi Head Block."""
-        super().__init__(**kwargs)
+        super().__init__()
 
         self._h = h
         self._attention_size = attention_size
