@@ -9,13 +9,10 @@ import pytest
 import torch
 from flights_time_series_dataset import FlightsDataset
 from time_series_predictor import TimeSeriesPredictor
-from time_series_transformer import Transformer
+from tst import Transformer
 
 # @pytest.mark.skip
 def test_transformer_tsp():
-    """
-    Tests the TransformerTimeSeriesPredictor
-    """
     if not torch.cuda.is_available():
         pytest.skip("needs a CUDA compatible GPU available to run this test")
 
@@ -35,9 +32,6 @@ def test_transformer_tsp():
 
 # @pytest.mark.skip
 def test_transformer_tsp_in_cpu():
-    """
-    Tests the TransformerTimeSeriesPredictor
-    """
     start = time.time()
     tsp = TimeSeriesPredictor(
         Transformer(),

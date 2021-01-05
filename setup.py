@@ -1,21 +1,18 @@
-"""
-Setup
-"""
 import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="time_series_transformer",
-    version="0.4.3",
-    author="Daniel Kaminski de Souza",
-    author_email="daniel@kryptonunite.com",
+    name="tst",
+    version="0.3.0",
+    author="Max Cohen",
+    author_email="max.zagouri@pm.me",
     description="Time Series Transformer",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/DanielAtKrypton/time_series_transformer",
-    packages=['time_series_transformer'],
+    url="https://timeseriestransformer.readthedocs.io/",
+    packages=['tst'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -40,6 +37,12 @@ setuptools.setup(
             'time-series-predictor',
         ],
         'docs': [
+            'Sphinx>3'
+            'sphinx-autodoc-typehints'
+            'ipython'
+            'nbsphinx'
+            'recommonmark'
+            'sphinx_rtd_theme'
         ]
     }
 )
