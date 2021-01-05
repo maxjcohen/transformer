@@ -14,7 +14,7 @@ setuptools.setup(
     description="Time Series Transformer",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/DanielAtKrypton/transformer",
+    url="https://github.com/DanielAtKrypton/time_series_transformer",
     packages=['time_series_transformer'],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -24,7 +24,7 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         "torch",
-        "numpy==1.19.3",
+        "numpy==1.19.3", # not actually a dependency anylonger, just here because latest numpy, a torch dependency, at the time of writting is broken in Windows.
     ],
     extras_require={
         'dev': [
@@ -34,7 +34,6 @@ setuptools.setup(
             'twine',
         ],
         'test': [
-            'pytest',
             'pytest>=4.6',
             'pytest-cov',
             'flights-time-series-dataset',

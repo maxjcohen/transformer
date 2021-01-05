@@ -34,7 +34,6 @@ class MultiHeadAttention(nn.Module):
         Deactivated if ``None``. Default is ``None``.
     """
 
-    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -59,7 +58,6 @@ class MultiHeadAttention(nn.Module):
         # Score placeholder
         self._scores = None
 
-    # pylint: disable=arguments-differ
     def forward(self,
                 query: torch.Tensor,
                 key: torch.Tensor,
@@ -159,7 +157,6 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         Default is 168.
     """
 
-    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -248,7 +245,6 @@ class MultiHeadAttentionChunk(MultiHeadAttention):
         return self_attention
 
 
-# pylint: disable=too-many-instance-attributes
 class MultiHeadAttentionWindow(MultiHeadAttention):
     """Multi Head Attention block with moving window.
 
@@ -278,7 +274,6 @@ class MultiHeadAttentionWindow(MultiHeadAttention):
         Default is 168 // 4 = 42.
     """
 
-    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,

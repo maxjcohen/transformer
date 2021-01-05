@@ -39,7 +39,6 @@ class Decoder(nn.Module):
         One of ``'chunk'``, ``'window'`` or ``None``. Default is ``'chunk'``.
     """
 
-    # pylint: disable=too-many-arguments
     def __init__(self,
                  d_model: int,
                  q: int,
@@ -62,7 +61,6 @@ class Decoder(nn.Module):
         elif chunk_mode is None:
             MHA = MultiHeadAttention
         else:
-            # pylint: disable=line-too-long
             raise NameError(
                 f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
 
@@ -78,7 +76,6 @@ class Decoder(nn.Module):
 
         self._dropout = nn.Dropout(p=dropout)
 
-    # pylint: disable=arguments-differ
     def forward(self, x: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Decoder block.
 
