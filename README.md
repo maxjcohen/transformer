@@ -16,7 +16,7 @@
 ```python
 from flights_time_series_dataset import FlightsDataset
 from time_series_predictor import TimeSeriesPredictor
-from time_series_transformer import Transformer
+from tst import Transformer
 
 tsp = TimeSeriesPredictor(
     Transformer(),
