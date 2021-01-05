@@ -40,13 +40,15 @@ numpy==1.19.3 \
     --hash=sha256:e983cbabe10a8989333684c98fdc5dd2f28b236216981e0c26ed359aaa676772 \
     --hash=sha256:ea6171d2d8d648dee717457d0f75db49ad8c2f13100680e284d7becf3dc311a6 \
     --hash=sha256:eefc13863bf01583a85e8c1121a901cc7cb8f059b960c4eba30901e2e6aba95f \
-    --hash=sha256:efd656893171bbf1331beca4ec9f2e74358fc732a2084f664fd149cc4b3441d2 \
-    # via time_series_transformer (setup.py), torch
+    --hash=sha256:efd656893171bbf1331beca4ec9f2e74358fc732a2084f664fd149cc4b3441d2
+    # via
+    #   torch
+    #   tst (setup.py)
 torch==1.7.1+cu110 \
-    --hash=sha256:2aa7c4219181e31fae146e5e42e395128214487fc7d016bc263fc60b354d22d6 \
-    # via time_series_transformer (setup.py)
+    --hash=sha256:2aa7c4219181e31fae146e5e42e395128214487fc7d016bc263fc60b354d22d6
+    # via tst (setup.py)
 typing-extensions==3.7.4.3 \
     --hash=sha256:7cb407020f00f7bfc3cb3e7881628838e69d8f3fcab2f64742a5e76b2f841918 \
     --hash=sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c \
-    --hash=sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f \
+    --hash=sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f
     # via torch

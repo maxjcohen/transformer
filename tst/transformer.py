@@ -25,11 +25,11 @@ class Transformer(nn.Module):
 
     Parameters
     ----------
-    input_dim:
+    d_input:
         Model input dimension.
-    hidden_dim:
+    d_model:
         Dimension of the input vector.
-    output_dim:
+    d_output:
         Model output dimension.
     q:
         Dimension of queries and keys.
@@ -56,9 +56,9 @@ class Transformer(nn.Module):
     """
 
     def __init__(self,
-                 input_dim: int = 1,
-                 hidden_dim: int = 32,
-                 output_dim: int = 1,
+                 d_input: int = 1,
+                 d_model: int = 32,
+                 d_output: int = 1,
                  q: int = 4,
                  v: int = 4,
                  h: int = 4,
@@ -71,16 +71,16 @@ class Transformer(nn.Module):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
-        self._hidden_dim = hidden_dim
+        self._d_model = d_model
 
-        self.layers_encoding = nn.ModuleList([Encoder(hidden_dim,
+        self.layers_encoding = nn.ModuleList([Encoder(d_model,
                                                    q,
                                                    v,
                                                    h,
                                                    attention_size=attention_size,
                                                    dropout=dropout,
                                                    chunk_mode=chunk_mode) for _ in range(N)])
-        self.layers_decoding = nn.ModuleList([Decoder(hidden_dim,
+        self.layers_decoding = nn.ModuleList([Decoder(d_model,
                                                    q,
                                                    v,
                                                    h,
@@ -88,8 +88,8 @@ class Transformer(nn.Module):
                                                    dropout=dropout,
                                                    chunk_mode=chunk_mode) for _ in range(N)])
 
-        self._embedding = nn.Linear(input_dim, hidden_dim)
-        self._linear = nn.Linear(hidden_dim, output_dim)
+        self._embedding = nn.Linear(d_input, d_model)
+        self._linear = nn.Linear(d_model, d_output)
 
         pe_functions = {
             'original': generate_original_PE,
@@ -116,11 +116,11 @@ class Transformer(nn.Module):
         Parameters
         ----------
         x:
-            :class:`torch.Tensor` of shape (batch_size, K, input_dim).
+            :class:`torch.Tensor` of shape (batch_size, K, d_input).
 
         Returns
         -------
-            Output tensor with shape (batch_size, K, output_dim).
+            Output tensor with shape (batch_size, K, d_output).
         """
         K = x.shape[1]
 
@@ -130,7 +130,7 @@ class Transformer(nn.Module):
         # Add position encoding
         if self._generate_PE is not None:
             pe_params = {'period': self._pe_period} if self._pe_period else {}
-            positional_encoding = self._generate_PE(K, self._hidden_dim, **pe_params)
+            positional_encoding = self._generate_PE(K, self._d_model, **pe_params)
             positional_encoding = positional_encoding.to(encoding.device)
             encoding.add_(positional_encoding)
 
@@ -143,7 +143,7 @@ class Transformer(nn.Module):
 
         # Add position encoding
         if self._generate_PE is not None:
-            positional_encoding = self._generate_PE(K, self._hidden_dim)
+            positional_encoding = self._generate_PE(K, self._d_model)
             positional_encoding = positional_encoding
             decoding.add_(positional_encoding)
 
