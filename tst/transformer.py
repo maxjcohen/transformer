@@ -131,7 +131,6 @@ class Transformer(nn.Module):
         if self._generate_PE is not None:
             pe_params = {'period': self._pe_period} if self._pe_period else {}
             positional_encoding = self._generate_PE(K, self._d_model, **pe_params)
-            positional_encoding = positional_encoding.to(encoding.device)
             encoding.add_(positional_encoding)
 
         # Encoding stack
