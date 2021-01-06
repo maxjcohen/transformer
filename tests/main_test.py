@@ -22,6 +22,7 @@ def test_transformer_tsp(device):
         Transformer(),
         max_epochs=50,
         train_split=None,
+        device=device,
     )
 
     tsp.fit(FlightsDataset())
