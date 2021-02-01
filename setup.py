@@ -21,5 +21,28 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         "torch",
-    ]
+        "numpy==1.19.3", # not actually a dependency anylonger, just here because latest numpy, a torch dependency, at the time of writting is broken in Windows.
+    ],
+    extras_require={
+        'dev': [
+            'pylint',
+            'autopep8',
+            'bumpversion',
+            'twine',
+        ],
+        'test': [
+            'pytest>=4.6',
+            'pytest-cov',
+            'flights-time-series-dataset',
+            'time-series-predictor',
+        ],
+        'docs': [
+            'Sphinx>3'
+            'sphinx-autodoc-typehints'
+            'ipython'
+            'nbsphinx'
+            'recommonmark'
+            'sphinx_rtd_theme'
+        ]
+    }
 )

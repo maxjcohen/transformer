@@ -1,67 +1,36 @@
 # Transformers for Time Series
+[![PyPI version](https://badge.fury.io/py/time-series-transformer.svg)](https://badge.fury.io/py/time-series-transformer) [![travis](https://travis-ci.org/DanielAtKrypton/time_series_transformer.svg?branch=master)](https://travis-ci.org/github/DanielAtKrypton/time_series_transformer) [![codecov](https://codecov.io/gh/DanielAtKrypton/time_series_transformer/branch/master/graph/badge.svg)](https://codecov.io/gh/DanielAtKrypton/time_series_transformer) [![GitHub license](https://img.shields.io/github/license/DanielAtKrypton/time_series_transformer)](https://github.com/DanielAtKrypton/time_series_transformer) [![Requirements Status](https://requires.io/github/DanielAtKrypton/time_series_transformer/requirements.svg?branch=master)](https://requires.io/github/DanielAtKrypton/time_series_transformer/requirements/?branch=master)
 
-[![Documentation Status](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest)](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Latest release](https://img.shields.io/github/release/maxjcohen/transformer.svg)](https://github.com/maxjcohen/transformer/releases/latest)
 
-Implementation of Transformer model (originally from [Attention is All You Need](https://arxiv.org/abs/1706.03762)) applied to Time Series (Powered by [PyTorch](https://pytorch.org/)).
-
-## Transformer model
-
-Transformer are attention based neural networks designed to solve NLP tasks. Their key features are:
-
-- linear complexity in the dimension of the feature vector ;
-- paralellisation of computing of a sequence, as opposed to sequential computing ;
-- long term memory, as we can look at any input time sequence step directly.
-
-This repo will focus on their application to times series.
-
-## Dataset and application as metamodel
-
-Our use-case is modeling a numerical simulator for building consumption prediction. To this end, we created a dataset by sampling random inputs (building characteristics and usage, weather, ...) and got simulated outputs. We then convert these variables in time series format, and feed it to the transformer.
-
-## Adaptations for time series
-
-In order to perform well on time series, a few adjustments had to be made:
-
-- The embedding layer is replaced by a generic linear layer ;
-- Original positional encoding are removed. A "regular" version, better matching the input sequence day/night patterns, can be used instead ;
-- A window is applied on the attention map to limit backward attention, and focus on short term patterns.
+## Documentation
+- [Read The Docs](https://readthedocs.org/projects/timeseriestransformer/badge/?version=latest).
 
 ## Installation
 
-All required packages can be found in `requirements.txt`, and expect to be run with `python3.7`. Note that you may have to install pytorch manually if you are not using pip with a Debian distribution : head on to [PyTorch installation page](https://pytorch.org/get-started/locally/). Here are a few lines to get started with pip and virtualenv:
-
-```bash
-$ apt-get install python3.7
-$ pip3 install --upgrade --user pip virtualenv
-$ virtualenv -p python3.7 .env
-$ . .env/bin/activate
-(.env) $ pip install -r requirements.txt
+```terminal
+.\scripts\init-env.ps1
 ```
 
 ## Usage
 
-### Downloading the dataset
-
-The dataset is not included in this repo, and must be downloaded manually. It is comprised of two files, `dataset.npz` contains all input and outputs value, `labels.json` is a detailed list of the variables. Please refer to [#2](https://github.com/maxjcohen/transformer/issues/2) for more information.
-
-### Running training script
-
-Using jupyter, run the default `training.ipynb` notebook. All adjustable parameters can be found in the second cell. Careful with the `BATCH_SIZE`, as we are using it to parallelize head and time chunk calculations.
-
-### Outside usage
-
-The `Transformer` class can be used out of the box, see the [docs](https://timeseriestransformer.readthedocs.io/en/latest/?badge=latest) for more info.
-
 ```python
+from flights_time_series_dataset import FlightsDataset
+from time_series_predictor import TimeSeriesPredictor
 from tst import Transformer
 
-net = Transformer(d_input, d_model, d_output, q, v, h, N, TIME_CHUNK, pe)
+tsp = TimeSeriesPredictor(
+    Transformer(),
+    max_epochs=50,
+    train_split=None,
+)
+
+tsp.fit(FlightsDataset())
 ```
 
-### Building the docs
+### Test
 
-To build the doc:
+To test the package simply run the following command from project's root folder.
 
 ```bash
-(.env) $ cd docs && make html
+pytest -s
 ```

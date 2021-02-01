@@ -1,10 +1,15 @@
-import numpy as np
+"""
+Decoder.py
+This script hosts the Decoder class.
+It performs the Decoder block from Attention is All You Need.
+"""
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-from tst.multiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
-from tst.positionwiseFeedForward import PositionwiseFeedForward
+from .multi_head_attention import (MultiHeadAttention,
+                                   MultiHeadAttentionChunk,
+                                   MultiHeadAttentionWindow)
+from .positionwise_feed_forward import PositionwiseFeedForward
 
 
 class Decoder(nn.Module):
@@ -15,7 +20,7 @@ class Decoder(nn.Module):
 
     Parameters
     ----------
-    d_model: 
+    d_model:
         Dimension of the input vector.
     q:
         Dimension of all query matrix.
@@ -41,9 +46,10 @@ class Decoder(nn.Module):
                  h: int,
                  attention_size: int = None,
                  dropout: float = 0.3,
-                 chunk_mode: str = 'chunk'):
+                 chunk_mode: str = 'chunk',
+                 **kwargs):
         """Initialize the Decoder block"""
-        super().__init__()
+        super().__init__(**kwargs)
 
         chunk_mode_modules = {
             'chunk': MultiHeadAttentionChunk,
@@ -58,15 +64,17 @@ class Decoder(nn.Module):
             raise NameError(
                 f'chunk_mode "{chunk_mode}" not understood. Must be one of {", ".join(chunk_mode_modules.keys())} or None.')
 
-        self._selfAttention = MHA(d_model, q, v, h, attention_size=attention_size)
-        self._encoderDecoderAttention = MHA(d_model, q, v, h, attention_size=attention_size)
-        self._feedForward = PositionwiseFeedForward(d_model)
+        self._selfAttention = MHA(
+            d_model, q, v, h, attention_size=attention_size, **kwargs)
+        self._encoderDecoderAttention = MHA(
+            d_model, q, v, h, attention_size=attention_size, **kwargs)
+        self._feedForward = PositionwiseFeedForward(d_model, **kwargs)
 
         self._layerNorm1 = nn.LayerNorm(d_model)
         self._layerNorm2 = nn.LayerNorm(d_model)
         self._layerNorm3 = nn.LayerNorm(d_model)
 
-        self._dopout = nn.Dropout(p=dropout)
+        self._dropout = nn.Dropout(p=dropout)
 
     def forward(self, x: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
         """Propagate the input through the Decoder block.
@@ -91,19 +99,19 @@ class Decoder(nn.Module):
         # Self attention
         residual = x
         x = self._selfAttention(query=x, key=x, value=x, mask="subsequent")
-        x = self._dopout(x)
+        x = self._dropout(x)
         x = self._layerNorm1(x + residual)
 
         # Encoder-decoder attention
         residual = x
-        x = self._encoderDecoderAttention(query=x, key=memory, value=memory)
-        x = self._dopout(x)
+        x = self._selfAttention(query=x, key=memory, value=memory)
+        x = self._dropout(x)
         x = self._layerNorm2(x + residual)
 
         # Feed forward
         residual = x
         x = self._feedForward(x)
-        x = self._dopout(x)
+        x = self._dropout(x)
         x = self._layerNorm3(x + residual)
 
         return x

@@ -1,9 +1,12 @@
+"""
+Transformer
+"""
 import torch
 import torch.nn as nn
 
-from tst.encoder import Encoder
-from tst.decoder import Decoder
-from tst.utils import generate_original_PE, generate_regular_PE
+from .decoder import Decoder
+from .encoder import Encoder
+from .utils import generate_original_PE, generate_regular_PE
 
 
 class Transformer(nn.Module):
@@ -53,16 +56,16 @@ class Transformer(nn.Module):
     """
 
     def __init__(self,
-                 d_input: int,
-                 d_model: int,
-                 d_output: int,
-                 q: int,
-                 v: int,
-                 h: int,
-                 N: int,
-                 attention_size: int = None,
-                 dropout: float = 0.3,
-                 chunk_mode: str = 'chunk',
+                 d_input: int = 1,
+                 d_model: int = 32,
+                 d_output: int = 1,
+                 q: int = 4,
+                 v: int = 4,
+                 h: int = 4,
+                 N: int = 4,
+                 attention_size: int = 6,
+                 dropout: float = 0.2,
+                 chunk_mode: bool = None,
                  pe: str = None,
                  pe_period: int = 24):
         """Create transformer structure from Encoder and Decoder blocks."""
@@ -71,19 +74,19 @@ class Transformer(nn.Module):
         self._d_model = d_model
 
         self.layers_encoding = nn.ModuleList([Encoder(d_model,
-                                                      q,
-                                                      v,
-                                                      h,
-                                                      attention_size=attention_size,
-                                                      dropout=dropout,
-                                                      chunk_mode=chunk_mode) for _ in range(N)])
+                                                   q,
+                                                   v,
+                                                   h,
+                                                   attention_size=attention_size,
+                                                   dropout=dropout,
+                                                   chunk_mode=chunk_mode) for _ in range(N)])
         self.layers_decoding = nn.ModuleList([Decoder(d_model,
-                                                      q,
-                                                      v,
-                                                      h,
-                                                      attention_size=attention_size,
-                                                      dropout=dropout,
-                                                      chunk_mode=chunk_mode) for _ in range(N)])
+                                                   q,
+                                                   v,
+                                                   h,
+                                                   attention_size=attention_size,
+                                                   dropout=dropout,
+                                                   chunk_mode=chunk_mode) for _ in range(N)])
 
         self._embedding = nn.Linear(d_input, d_model)
         self._linear = nn.Linear(d_model, d_output)
@@ -121,14 +124,13 @@ class Transformer(nn.Module):
         """
         K = x.shape[1]
 
-        # Embeddin module
+        # Embedding module
         encoding = self._embedding(x)
 
         # Add position encoding
         if self._generate_PE is not None:
             pe_params = {'period': self._pe_period} if self._pe_period else {}
             positional_encoding = self._generate_PE(K, self._d_model, **pe_params)
-            positional_encoding = positional_encoding.to(encoding.device)
             encoding.add_(positional_encoding)
 
         # Encoding stack
@@ -141,7 +143,7 @@ class Transformer(nn.Module):
         # Add position encoding
         if self._generate_PE is not None:
             positional_encoding = self._generate_PE(K, self._d_model)
-            positional_encoding = positional_encoding.to(decoding.device)
+            positional_encoding = positional_encoding
             decoding.add_(positional_encoding)
 
         for layer in self.layers_decoding:
