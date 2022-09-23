@@ -49,7 +49,8 @@ class Transformer(nn.Module):
         Type of positional encoding to add.
         Must be one of ``'original'``, ``'regular'`` or ``None``. Default is ``None``.
     pe_period:
-        If using the ``'regular'` pe, then we can define the period. Default is ``24``.
+        If using the ``'regular'` pe, then we can define the period. Default is
+        ``None``.
     """
 
     def __init__(self,
@@ -64,7 +65,7 @@ class Transformer(nn.Module):
                  dropout: float = 0.3,
                  chunk_mode: str = 'chunk',
                  pe: str = None,
-                 pe_period: int = 24):
+                 pe_period: int = None):
         """Create transformer structure from Encoder and Decoder blocks."""
         super().__init__()
 
