@@ -22,9 +22,13 @@ def generate_original_PE(length: int, d_model: int) -> torch.Tensor:
 
     pos = torch.arange(length).unsqueeze(1)
     PE[:, 0::2] = torch.sin(
-        pos / torch.pow(1000, torch.arange(0, d_model, 2, dtype=torch.float32)/d_model))
+        pos
+        / torch.pow(10000, torch.arange(0, d_model, 2, dtype=torch.float32) / d_model)
+    )
     PE[:, 1::2] = torch.cos(
-        pos / torch.pow(1000, torch.arange(1, d_model, 2, dtype=torch.float32)/d_model))
+        pos
+        / torch.pow(10000, torch.arange(0, d_model, 2, dtype=torch.float32) / d_model)
+    )
 
     return PE
 
