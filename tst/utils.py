@@ -33,7 +33,9 @@ def generate_original_PE(length: int, d_model: int) -> torch.Tensor:
     return PE
 
 
-def generate_regular_PE(length: int, d_model: int, period: Optional[int] = 24) -> torch.Tensor:
+def generate_regular_PE(
+    length: int, d_model: int, period: Optional[int] = 24
+) -> torch.Tensor:
     """Generate positional encoding with a given period.
 
     Parameters
@@ -59,10 +61,12 @@ def generate_regular_PE(length: int, d_model: int, period: Optional[int] = 24) -
     return PE
 
 
-def generate_local_map_mask(chunk_size: int,
-                            attention_size: int,
-                            mask_future=False,
-                            device: torch.device = 'cpu') -> torch.BoolTensor:
+def generate_local_map_mask(
+    chunk_size: int,
+    attention_size: int,
+    mask_future=False,
+    device: torch.device = "cpu",
+) -> torch.BoolTensor:
     """Compute attention mask as attention_size wide diagonal.
 
     Parameters
