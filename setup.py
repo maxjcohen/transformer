@@ -7,7 +7,7 @@ setuptools.setup(
     name="tst",
     version="0.4.0",
     author="Max Cohen",
-    author_email="max.zagouri@pm.me",
+    author_email="max@mail.com",
     description="Time Series Transformer",
     long_description=long_description,
     long_description_content_type="text/markdown",
